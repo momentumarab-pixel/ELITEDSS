@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg0 text-text antialiased;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-panel backdrop-blur-md border border-white/5 rounded-2xl shadow-xl;
+  }
+  .glass-panel-hover {
+    @apply hover:bg-panelHover transition-all duration-300 hover:scale-[1.02];
+  }
+  .badge {
+    @apply px-2.5 py-1 rounded-lg text-xs font-semibold;
+  }
+  .badge-senior {
+    @apply bg-blue-500/20 text-blue-300 border border-blue-500/30;
+  }
+  .badge-u23 {
+    @apply bg-purple-500/20 text-purple-300 border border-purple-500/30;
+  }
+  .badge-top {
+    @apply bg-amber-500/20 text-amber-300 border border-amber-500/30;
+  }
+}
