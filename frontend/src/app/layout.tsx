@@ -1,28 +1,28 @@
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import Navbar from "@/components/Navbar"
-import "./globals.css"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/Navbar";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Eliteserien DSS",
-  description: "Decision Support System",
-}
+  description: "Decision Support System for Eliteserien",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="no">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-bg0 text-text min-h-screen`}>
         <Navbar />
-        <main className="min-h-screen bg-gradient-to-br from-bg0 to-bg1 pt-4">
+        <main className="max-w-7xl mx-auto px-4 py-6">
           {children}
         </main>
       </body>
     </html>
-  )
+  );
 }

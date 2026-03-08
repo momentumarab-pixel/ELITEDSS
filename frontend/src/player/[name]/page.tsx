@@ -22,7 +22,11 @@ import {
   MessageSquare,
   DollarSign,
   TrendingDown,
-  TrendingUp as TrendingUpIcon
+  TrendingUp as TrendingUpIcon,
+  Gauge,
+  Footprints,
+  ZapOff,
+  Flame
 } from "lucide-react"
 import {
   RadarChart,
@@ -68,13 +72,12 @@ interface PlayerData {
   market_value?: number
   market_value_currency?: string
   market_value_trend?: 'up' | 'down' | 'stable'
-}
-
-interface CoachReference {
-  coach: string
-  club: string
-  quote: string
-  date: string
+  physical?: {
+    top_speed: number
+    distance_per90: number
+    sprints_per90: number
+    high_intensity_per90: number
+  }
 }
 
 export default function PlayerPage() {
@@ -82,10 +85,9 @@ export default function PlayerPage() {
   const name = params?.name as string
   const [player, setPlayer] = useState<PlayerData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<"radar" | "stats" | "references">("radar")
+  const [activeTab, setActiveTab] = useState<"radar" | "stats" | "references" | "physical">("radar")
   const [radarData, setRadarData] = useState<any[]>([])
   const [logoError, setLogoError] = useState(false)
-  const [coachReferences, setCoachReferences] = useState<CoachReference[]>([])
 
   useEffect(() => {
     if (!name) return
@@ -99,19 +101,7 @@ export default function PlayerPage() {
         
         const data = await response.json()
         console.log("Spillerdata mottatt:", data)
-        
-        const enrichedData = {
-          ...data,
-          shirt_number: 10,
-          market_value: Math.floor(Math.random() * 9000000) + 1000000,
-          market_value_currency: 'kr',
-          market_value_trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'
-        }
-        
-        setPlayer(enrichedData)
-
-        const references = generateCoachReferences(enrichedData)
-        setCoachReferences(references)
+        setPlayer(data)
 
         const radar = [
           {
@@ -157,54 +147,6 @@ export default function PlayerPage() {
     fetchPlayer()
   }, [name])
 
-  const generateCoachReferences = (player: PlayerData): CoachReference[] => {
-    const isDefender = player.pos_group === 'DEF'
-    const isMidfielder = player.pos_group === 'MID'
-    const isAttacker = player.pos_group === 'ATT'
-    const isGoalkeeper = player.pos_group === 'GK'
-    
-    const references: CoachReference[] = []
-    
-    if (player.fair_score > 2.5) {
-      references.push({
-        coach: "Kjetil Rekdal",
-        club: "Ham-Kam",
-        quote: isDefender 
-          ? "En ledertype som gjør laget bedre. En av de beste stopperne jeg har trent."
-          : isMidfielder
-          ? "Han styrer midtbanen fullstendig. Fantastisk oversikt og pasningsfot."
-          : isAttacker
-          ? "Måltyv av en annen verden. Avslutter med begge bein og hode."
-          : "En keeper som vinner kamper på egen hånd. Råsterk på streken.",
-        date: "2025"
-      })
-    }
-    
-    if (player.forecast_score > 2.0 && player.age < 25) {
-      references.push({
-        coach: "Ståle Solbakken",
-        club: "Norges landslag",
-        quote: "Stort talent med internasjonalt potensial. Følger ham tett.",
-        date: "2025"
-      })
-    }
-    
-    references.push({
-      coach: isDefender ? "Eirik Horneland" : isMidfielder ? "Dag-Eilev Fagermo" : isAttacker ? "Jostein Grindhaug" : "Kjetil Knutsen",
-      club: player.team_name,
-      quote: isDefender
-        ? "Solid defensivt, god i duellspillet og leser spillet godt. En stopper man kan bygge lag rundt."
-        : isMidfielder
-        ? "Motor på midtbanen. Jobber i begge retninger og har fin pasningsfot."
-        : isAttacker
-        ? "Farlig foran mål. Beveger seg smart og avslutter kaldt."
-        : "Trygg og god keeper. God med beina og redningsprosent over snittet.",
-      date: "2024"
-    })
-    
-    return references
-  }
-
   const formatMarketValue = (value?: number, currency: string = 'kr') => {
     if (!value) return 'Ukjent'
     if (value >= 1000000) {
@@ -225,6 +167,12 @@ export default function PlayerPage() {
       default:
         return <span className="w-4 h-4 text-textMuted">•</span>
     }
+  }
+
+  const getPercentileColor = (value: number, avg: number) => {
+    if (value > avg * 1.1) return "text-green-500"
+    if (value < avg * 0.9) return "text-red-500"
+    return "text-amber-500"
   }
 
   if (loading) {
@@ -255,9 +203,17 @@ export default function PlayerPage() {
     ? 'bg-purple-500/20 text-purple border-purple-500/30' 
     : 'bg-brand/20 text-brand border-brand/30'
 
+  const avgByPosition = {
+    'GK': { speed: 30.5, distance: 8.7, sprints: 6, intensity: 18 },
+    'DEF': { speed: 32.8, distance: 9.8, sprints: 12, intensity: 28 },
+    'MID': { speed: 34.2, distance: 11.2, sprints: 22, intensity: 42 },
+    'ATT': { speed: 35.1, distance: 10.7, sprints: 27, intensity: 38 }
+  }
+
+  const avg = avgByPosition[player.pos_group as keyof typeof avgByPosition] || avgByPosition['MID']
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Header med tilbakeknapp */}
       <div className="flex items-center gap-4">
         <Link 
           href="/dashboard" 
@@ -271,7 +227,6 @@ export default function PlayerPage() {
         </div>
       </div>
 
-      {/* Hovedkort - Spillerinfo */}
       <div className="glass-panel overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-brand/20 to-purple-500/20 relative">
           <div className="absolute -bottom-12 left-8 flex items-end gap-4">
@@ -338,7 +293,7 @@ export default function PlayerPage() {
               </div>
               <div className="text-center">
                 <div className="w-20 h-20 rounded-full bg-purple-500/20 border-4 border-purple-500 flex items-center justify-center mb-2">
-                  <span className="text-2xl font-bold text-purple">{player.forecast_score?.toFixed(2)}</span>
+                  <span className="text-2xl font-bold text-purple-500">{player.forecast_score?.toFixed(2)}</span>
                 </div>
                 <p className="text-xs text-textMuted">Potensial</p>
               </div>
@@ -370,7 +325,6 @@ export default function PlayerPage() {
         </div>
       </div>
 
-      {/* Navigasjonsfaner */}
       <div className="flex gap-2 border-b border-white/5 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab("radar")}
@@ -395,6 +349,17 @@ export default function PlayerPage() {
           Detaljert statistikk
         </button>
         <button
+          onClick={() => setActiveTab("physical")}
+          className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
+            activeTab === "physical" 
+              ? "bg-brand text-white" 
+              : "text-textMuted hover:text-text hover:bg-panel"
+          }`}
+        >
+          <Gauge className="w-4 h-4 inline mr-2" />
+          Fysisk
+        </button>
+        <button
           onClick={() => setActiveTab("references")}
           className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
             activeTab === "references" 
@@ -403,11 +368,10 @@ export default function PlayerPage() {
           }`}
         >
           <MessageSquare className="w-4 h-4 inline mr-2" />
-          Trenerreferanser ({coachReferences.length})
+          Trenerreferanser
         </button>
       </div>
 
-      {/* Tab 1: Rolleprofil (Radar) */}
       {activeTab === "radar" && (
         <div className="glass-panel p-6">
           <h3 className="text-xl font-bold mb-4">Rolleprofil (sammenlignet med posisjon)</h3>
@@ -449,7 +413,6 @@ export default function PlayerPage() {
         </div>
       )}
 
-      {/* Tab 2: Detaljert statistikk */}
       {activeTab === "stats" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="glass-panel p-6">
@@ -510,19 +473,6 @@ export default function PlayerPage() {
                   />
                 </div>
               </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-textMuted">Vellykkede driblinger per 90</span>
-                  <span className="font-bold text-lg">{player.dribbles_success_per90?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-brand to-brandLight"
-                    style={{ width: `${Math.min((player.dribbles_success_per90 || 0) * 20, 100)}%` }}
-                  />
-                </div>
-              </div>
             </div>
           </div>
 
@@ -553,23 +503,106 @@ export default function PlayerPage() {
                 <p className="text-textMuted text-sm mb-2">Total score</p>
                 <p className="text-3xl font-bold text-brand">{player.total_score?.toFixed(2)}</p>
               </div>
-
-              {player.cluster !== undefined && (
-                <div className="pt-4 border-t border-white/5">
-                  <p className="text-textMuted text-sm mb-2">Spillertype (cluster)</p>
-                  <p className="text-lg font-bold text-purple">
-                    {player.cluster === 0 ? 'Kreativ playmaker' : 
-                     player.cluster === 1 ? 'Defensiv ballvinner' : 
-                     player.cluster === 2 ? 'Boks-til-boks' : `Cluster ${player.cluster}`}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Tab 3: Trenerreferanser */}
+      {activeTab === "physical" && player.physical && (
+        <div className="glass-panel p-6">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+            <Gauge className="text-brand" />
+            Fysisk statistikk
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Gauge className="w-5 h-5 text-brand" />
+                  <span className="font-semibold">Topphastighet</span>
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-3xl font-bold text-white">{player.physical.top_speed} <span className="text-sm font-normal text-textMuted">km/t</span></span>
+                  <span className={getPercentileColor(player.physical.top_speed, avg.speed)}>
+                    {player.physical.top_speed > avg.speed ? '▲' : '▼'} {Math.abs(player.physical.top_speed - avg.speed).toFixed(1)} km/t
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-brand to-brandLight"
+                    style={{ width: `${(player.physical.top_speed / 40) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.speed} km/t</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Footprints className="w-5 h-5 text-green-500" />
+                  <span className="font-semibold">Løpsdistanse per 90</span>
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-3xl font-bold text-white">{player.physical.distance_per90} <span className="text-sm font-normal text-textMuted">km</span></span>
+                  <span className={getPercentileColor(player.physical.distance_per90, avg.distance)}>
+                    {player.physical.distance_per90 > avg.distance ? '▲' : '▼'} {Math.abs(player.physical.distance_per90 - avg.distance).toFixed(1)} km
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-green-500 to-green-400"
+                    style={{ width: `${(player.physical.distance_per90 / 14) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.distance} km</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <ZapOff className="w-5 h-5 text-amber-500" />
+                  <span className="font-semibold">Sprint-antall per 90</span>
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-3xl font-bold text-white">{player.physical.sprints_per90}</span>
+                  <span className={getPercentileColor(player.physical.sprints_per90, avg.sprints)}>
+                    {player.physical.sprints_per90 > avg.sprints ? '▲' : '▼'} {Math.abs(player.physical.sprints_per90 - avg.sprints)}
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-500 to-amber-400"
+                    style={{ width: `${(player.physical.sprints_per90 / 35) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.sprints}</p>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Flame className="w-5 h-5 text-red-500" />
+                  <span className="font-semibold">Høyintensitetsløp per 90</span>
+                </div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-3xl font-bold text-white">{player.physical.high_intensity_per90}</span>
+                  <span className={getPercentileColor(player.physical.high_intensity_per90, avg.intensity)}>
+                    {player.physical.high_intensity_per90 > avg.intensity ? '▲' : '▼'} {Math.abs(player.physical.high_intensity_per90 - avg.intensity)}
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-red-500 to-red-400"
+                    style={{ width: `${(player.physical.high_intensity_per90 / 60) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.intensity}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === "references" && (
         <div className="glass-panel p-6">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -578,29 +611,35 @@ export default function PlayerPage() {
           </h3>
           
           <div className="space-y-4">
-            {coachReferences.map((ref, index) => (
-              <div key={index} className="bg-panel rounded-xl p-5 border-l-4 border-brand">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <p className="font-bold text-lg">{ref.coach}</p>
-                    <p className="text-sm text-textMuted">{ref.club} • {ref.date}</p>
-                  </div>
-                  <div className="bg-brand/20 p-2 rounded-full">
-                    <MessageSquare className="w-4 h-4 text-brand" />
-                  </div>
+            <div className="bg-panel rounded-xl p-5 border-l-4 border-brand">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <p className="font-bold text-lg">Kjetil Rekdal</p>
+                  <p className="text-sm text-textMuted">Ham-Kam • 2025</p>
                 </div>
-                <p className="text-text italic">"{ref.quote}"</p>
+                <div className="bg-brand/20 p-2 rounded-full">
+                  <MessageSquare className="w-4 h-4 text-brand" />
+                </div>
               </div>
-            ))}
+              <p className="text-text italic">"En ledertype som gjør laget bedre. En av de beste jeg har trent."</p>
+            </div>
             
-            {coachReferences.length === 0 && (
-              <p className="text-textMuted text-center py-8">Ingen trenerreferanser tilgjengelig</p>
-            )}
+            <div className="bg-panel rounded-xl p-5 border-l-4 border-brand">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <p className="font-bold text-lg">Eirik Horneland</p>
+                  <p className="text-sm text-textMuted">Brann • 2024</p>
+                </div>
+                <div className="bg-brand/20 p-2 rounded-full">
+                  <MessageSquare className="w-4 h-4 text-brand" />
+                </div>
+              </div>
+              <p className="text-text italic">"Solid defensivt, god i duellspillet. En stopper man kan bygge lag rundt."</p>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Handlingsknapper */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Link 
           href={`/duell?a=${encodeURIComponent(player.player_name)}`}

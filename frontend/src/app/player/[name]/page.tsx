@@ -1,924 +1,629 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { useParams } from "next/navigation"
-import { 
-  ArrowLeft, 
-  User, 
-  Shield,
-  Calendar,
-  Clock,
-  Award,
-  TrendingUp,
-  Zap,
-  Activity,
-  Target,
-  BarChart3,
-  Star,
-  Sword,
-  Eye,
-  Users,
-  MessageSquare,
-  DollarSign,
-  TrendingDown,
-  TrendingUp as TrendingUpIcon,
-  Gauge,
-  Footprints,
-  ZapOff,
-  Flame,
-  Share2,
-  Send,
-  ThumbsUp
+import Link from "next/link"
+import Image from "next/image"
+import {
+  ArrowLeft, Activity, Target, Shield, Zap,
+  TrendingUp, BarChart3, Radar, Star, Users,
+  CheckCircle, AlertTriangle, Clock, ChevronRight
 } from "lucide-react"
 import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  ResponsiveContainer,
-  Tooltip
+  RadarChart, PolarGrid, PolarAngleAxis, Radar as RechartsRadar,
+  ResponsiveContainer, Tooltip
 } from "recharts"
 
+// ── Logo mapping ───────────────────────────────────────────────────────────
+const TEAM_LOGO: Record<string, string> = {
+  "Bodø/Glimt":    "/images/Logo/bodo-glimt.png",
+  "Brann":         "/images/Logo/Brann.png",
+  "Bryne":         "/images/Logo/Bryne.png",
+  "Fredrikstad":   "/images/Logo/Fredrikstad.png",
+  "HamKam":        "/images/Logo/hamkam.png",
+  "Haugesund":     "/images/Logo/haugesund.png",
+  "KFUM Oslo":     "/images/Logo/KFUM.png",
+  "Kristiansund":  "/images/Logo/Kristiansund.png",
+  "Molde":         "/images/Logo/Molde.png",
+  "Rosenborg":     "/images/Logo/Rosenborg.png",
+  "Sandefjord":    "/images/Logo/Sandefjord.png",
+  "Sarpsborg 08":  "/images/Logo/sarpsborg-08.png",
+  "Strømsgodset":  "/images/Logo/stromsgodset.png",
+  "Tromsø":        "/images/Logo/tromso.png",
+  "Vålerenga":     "/images/Logo/valerenga.png",
+  "Viking":        "/images/Logo/Viking.png",
+}
+
+function getLogoPath(teamName: string): string | null {
+  if (!teamName) return null
+  // Direkte match
+  if (TEAM_LOGO[teamName]) return TEAM_LOGO[teamName]
+  // Fuzzy match — finn første nøkkel som er substring
+  const key = Object.keys(TEAM_LOGO).find(k =>
+    teamName.toLowerCase().includes(k.toLowerCase()) ||
+    k.toLowerCase().includes(teamName.toLowerCase())
+  )
+  return key ? TEAM_LOGO[key] : null
+}
+
+// ── Types ──────────────────────────────────────────────────────────────────
 interface PlayerData {
   player_name: string
-  team_name: string
-  team_logo?: string
   age: number
-  position: string
+  nationality: string
+  team_name: string
   pos_group: string
+  role_raw: string
+  player_tier: string
   minutes: number
-  goals: number
-  assists: number
+  games: number
+  starts: number
+  rating: number
+
+  // Scores
+  fair_score: number
+  forecast_score: number
+  shrunk_score: number
+  reliability: number
+  age_factor: number
+  total_score: number
+  percentile_pos: number
+  value_tier: string
+  risk_upside_segment: string
+  roi_index: number
+  scout_priority: number
+  value_for_money: number
+
+  // Per-90
   goals_per90: number
   assists_per90: number
   passes_key_per90: number
   tackles_total_per90: number
-  dribbles_success_per90: number
-  fair_score: number
-  forecast_score: number
-  total_score: number
-  reliability: number
+  duels_won_per90: number
+  interceptions_per90: number
+  intensity_per90: number
+  shots_per90: number
+  dribbles_per90: number
+
+  // Efficiency
+  shot_efficiency: number
+  duel_efficiency: number
+  pass_efficiency: number
+  dribble_efficiency: number
+  risk_rate: number
+
+  // Z-scores
+  z_goals_per90_pos: number
+  z_assists_per90_pos: number
+  z_passes_key_per90_pos: number
+  z_tackles_total_per90_pos: number
+  z_duels_won_per90_pos: number
+  z_intensity_per90_pos: number
+  z_shot_efficiency_pos: number
+  z_duel_efficiency_pos: number
+  z_pass_efficiency_pos: number
+  z_dribble_efficiency_pos: number
+
+  // Roller
+  best_role_no: string
+  cluster_label: string
+  silhouette: number
+  upside_gap_best: number
+  upside_gap_playmaker: number
+  upside_gap_ballwinner: number
+  upside_gap_finisher: number
+  upside_gap_pressplayer: number
+  raw_score_playmaker: number
+  raw_score_ballwinner: number
+  raw_score_finisher: number
+  raw_score_pressplayer: number
+  value_score_playmaker: number
+  value_score_ballwinner: number
+  value_score_finisher: number
+  value_score_pressplayer: number
+  whatif_900min_playmaker: number
+  whatif_900min_ballwinner: number
+  whatif_900min_finisher: number
+  whatif_900min_pressplayer: number
+}
+
+interface SimilarPlayer {
+  player_name: string
+  team_name: string
+  pos_group: string
+  age: number
   player_tier: string
-  role_profile?: string
-  cluster?: number
-  z_passes_key_per90_pos?: number
-  z_passes_accuracy_pos?: number
-  z_intensity_pos?: number
-  z_duels_total_per90_pos?: number
-  z_interceptions_per90_pos?: number
-  z_goals_per90_pos?: number
-  z_shots_total_per90_pos?: number
-  z_shot_efficiency_pos?: number
-  shirt_number?: number
-  market_value?: number
-  market_value_currency?: string
-  market_value_trend?: 'up' | 'down' | 'stable'
-  physical?: {
-    top_speed: number
-    distance_per90: number
-    sprints_per90: number
-    high_intensity_per90: number
-  }
+  fair_score: number
+  value_tier: string
+  distance: number
 }
 
-interface TeamComment {
-  id: number
-  user: string
-  userAvatar: string
-  userColor: string
-  text: string
-  time: string
-  likes: number
-  liked?: boolean
+interface RadarData {
+  subject: string
+  value: number
+  fullMark: number
 }
 
-export default function PlayerPage() {
+// ── Config ─────────────────────────────────────────────────────────────────
+const SEGMENT_CFG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
+  Sikker_Vinner:      { label: "Sikker Vinner",  color: "#6366f1", icon: CheckCircle   },
+  Risiko_Høy_Oppside: { label: "Høy Oppside",    color: "#6366f1", icon: TrendingUp    },
+  Sikker_Middels:     { label: "Sikker Middels",  color: "#94a3b8", icon: Shield        },
+  Risiko_Lav_Oppside: { label: "Lav Oppside",     color: "#94a3b8", icon: AlertTriangle },
+}
+
+const TIER_CFG: Record<string, { color: string; bg: string }> = {
+  Elite:              { color: "#6366f1", bg: "rgba(99,102,241,0.15)"  },
+  God:                { color: "#a5b4fc", bg: "rgba(165,180,252,0.12)" },
+  Gjennomsnitt:       { color: "#94a3b8", bg: "rgba(148,163,184,0.12)" },
+  Under_Gjennomsnitt: { color: "#64748b", bg: "rgba(100,116,139,0.12)" },
+}
+
+const POS_COLOR: Record<string, string> = {
+  GK: "#f59e0b", DEF: "#6366f1", MID: "#a5b4fc", ATT: "#818cf8"
+}
+
+const ROLLE_CFG = [
+  { key: "playmaker",   label: "Kreativ playmaker",  raw: "raw_score_playmaker",   val: "value_score_playmaker",   upside: "upside_gap_playmaker",   whatif: "whatif_900min_playmaker"   },
+  { key: "ballwinner",  label: "Defensiv ballvinner", raw: "raw_score_ballwinner",  val: "value_score_ballwinner",  upside: "upside_gap_ballwinner",  whatif: "whatif_900min_ballwinner"  },
+  { key: "finisher",    label: "Avslutter",           raw: "raw_score_finisher",    val: "value_score_finisher",    upside: "upside_gap_finisher",    whatif: "whatif_900min_finisher"    },
+  { key: "pressplayer", label: "Presspiller",         raw: "raw_score_pressplayer", val: "value_score_pressplayer", upside: "upside_gap_pressplayer", whatif: "whatif_900min_pressplayer" },
+]
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function StatBar({ label, value, max, unit = "" }: { label: string; value: number; max: number; unit?: string }) {
+  const pct = Math.min((value / max) * 100, 100)
+  return (
+    <div>
+      <div className="flex justify-between mb-1.5">
+        <span className="text-xs text-textMuted">{label}</span>
+        <span className="text-xs font-bold text-white">{value?.toFixed(2)}{unit}</span>
+      </div>
+      <div className="h-1 rounded-full bg-white/6 overflow-hidden">
+        <div className="h-full rounded-full"
+          style={{
+            width: `${pct}%`,
+            background: "linear-gradient(90deg, #6366f1, #818cf8)",
+            boxShadow: "0 0 6px rgba(99,102,241,0.3)"
+          }} />
+      </div>
+    </div>
+  )
+}
+
+function EffGauge({ label, value }: { label: string; value: number }) {
+  const pct = Math.min(value * 100, 100)
+  const r = 26, circ = 2 * Math.PI * r
+  const dash = (pct / 100) * circ
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <svg width="64" height="64" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        <circle cx="32" cy="32" r={r} fill="none"
+          stroke="#6366f1" strokeWidth="5"
+          strokeDasharray={`${dash} ${circ}`}
+          strokeLinecap="round"
+          transform="rotate(-90 32 32)"
+          style={{ filter: "drop-shadow(0 0 4px rgba(99,102,241,0.5))" }}
+        />
+        <text x="32" y="37" textAnchor="middle" fontSize="11" fontWeight="bold" fill="white">
+          {pct.toFixed(0)}%
+        </text>
+      </svg>
+      <span className="text-[10px] text-textMuted text-center leading-tight">{label}</span>
+    </div>
+  )
+}
+
+function KpiCard({ label, value, sub, highlight = false }: {
+  label: string; value: string; sub?: string; highlight?: boolean
+}) {
+  return (
+    <div className="glass-panel rounded-2xl p-5 relative overflow-hidden border border-white/5">
+      <div className="absolute inset-x-0 top-0 h-px"
+        style={{ background: highlight
+          ? "linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent)"
+          : "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)"
+        }} />
+      <p className={`text-2xl font-black mb-1 ${highlight ? "text-brand" : "text-white"}`}>{value}</p>
+      <p className="text-[10px] uppercase tracking-widest text-textMuted font-medium">{label}</p>
+      {sub && <p className="text-[10px] text-textMuted/60 mt-1">{sub}</p>}
+    </div>
+  )
+}
+
+// ── Main ───────────────────────────────────────────────────────────────────
+export default function PlayerProfilePage() {
   const params = useParams()
-  const name = params?.name as string
-  const [player, setPlayer] = useState<PlayerData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<"radar" | "stats" | "references" | "physical" | "team">("radar")
-  const [radarData, setRadarData] = useState<any[]>([])
-  const [logoError, setLogoError] = useState(false)
-  
-  // Team-kommentarer
-  const [comments, setComments] = useState<TeamComment[]>([
-    {
-      id: 1,
-      user: "Kjetil",
-      userAvatar: "KJ",
-      userColor: "bg-blue-500",
-      text: "God teknikk, bør følges opp med fysisk test. Kan være aktuell for U21-landslaget.",
-      time: "12:30",
-      likes: 3
-    },
-    {
-      id: 2,
-      user: "Marie",
-      userAvatar: "MA",
-      userColor: "bg-green-500",
-      text: "Enig! Så ham mot Rosenborg, imponerende bevegelse uten ball.",
-      time: "12:45",
-      likes: 2
-    },
-    {
-      id: 3,
-      user: "Petter",
-      userAvatar: "PE",
-      userColor: "bg-purple-500",
-      text: "Har sett 3 kamper. Høy arbeidsrate, men kan forbedre avslutningene.",
-      time: "13:15",
-      likes: 1
-    }
-  ])
-  
-  const [newComment, setNewComment] = useState("")
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [shareNote, setShareNote] = useState("")
-  const [shareSuccess, setShareSuccess] = useState(false)
+  const name = decodeURIComponent(params.name as string)
 
-  // Hardkodet team-medlemmer for demo
-  const TEAM_MEMBERS = [
-    { id: 1, name: "Kjetil", role: "Hovedtrener", avatar: "KJ", color: "bg-blue-500" },
-    { id: 2, name: "Marie", role: "Sportssjef", avatar: "MA", color: "bg-green-500" },
-    { id: 3, name: "Petter", role: "Speider", avatar: "PE", color: "bg-purple-500" },
-  ]
-  
-  const [currentUser, setCurrentUser] = useState(TEAM_MEMBERS[0])
+  const [player,  setPlayer]  = useState<PlayerData | null>(null)
+  const [similar, setSimilar] = useState<SimilarPlayer[]>([])
+  const [radar,   setRadar]   = useState<RadarData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
-    if (!name) return
-
-    const fetchPlayer = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/api/player/${encodeURIComponent(name)}`
-        )
-        if (!response.ok) throw new Error('Kunne ikke hente spillerdata')
-        
-        const data = await response.json()
-        console.log("Spillerdata mottatt:", data)
-        setPlayer(data)
-
-        const radar = [
-          {
-            kategori: "Mål",
-            verdi: data.z_goals_per90_pos ? Math.min((data.z_goals_per90_pos + 2) * 25, 100) : 50,
-            fullMark: 100
-          },
-          {
-            kategori: "Skudd",
-            verdi: data.z_shots_total_per90_pos ? Math.min((data.z_shots_total_per90_pos + 2) * 25, 100) : 50,
-            fullMark: 100
-          },
-          {
-            kategori: "Nøkkelpasninger",
-            verdi: data.z_passes_key_per90_pos ? Math.min((data.z_passes_key_per90_pos + 2) * 25, 100) : 50,
-            fullMark: 100
-          },
-          {
-            kategori: "Pasningspresisjon",
-            verdi: data.z_passes_accuracy_pos ? Math.min((data.z_passes_accuracy_pos + 2) * 25, 100) : 50,
-            fullMark: 100
-          },
-          {
-            kategori: "Dueller",
-            verdi: data.z_duels_total_per90_pos ? Math.min((data.z_duels_total_per90_pos + 2) * 25, 100) : 50,
-            fullMark: 100
-          },
-          {
-            kategori: "Intensitet",
-            verdi: data.z_intensity_pos ? Math.min((data.z_intensity_pos + 2) * 25, 100) : 50,
-            fullMark: 100
-          }
-        ]
-        setRadarData(radar)
-
-      } catch (err) {
-        console.error('Feil ved heating av spiller:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPlayer()
+    const base = "http://localhost:8000"
+    Promise.all([
+      fetch(`${base}/api/player/${encodeURIComponent(name)}`).then(r => r.json()),
+      fetch(`${base}/api/similar/${encodeURIComponent(name)}`).then(r => r.json()),
+      fetch(`${base}/api/radar/${encodeURIComponent(name)}`).then(r => r.json()),
+    ])
+      .then(([p, sim, rad]) => {
+        setPlayer(p)
+        setSimilar(sim.similar || [])
+        setRadar(rad.radar || [])
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [name])
 
-  const formatMarketValue = (value?: number, currency: string = 'kr') => {
-    if (!value) return 'Ukjent'
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)} mill. ${currency}`
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(0)}k ${currency}`
-    }
-    return `${value} ${currency}`
-  }
-
-  const getTrendIcon = (trend?: 'up' | 'down' | 'stable') => {
-    switch (trend) {
-      case 'up':
-        return <TrendingUpIcon className="w-4 h-4 text-green" />
-      case 'down':
-        return <TrendingDown className="w-4 h-4 text-red" />
-      default:
-        return <span className="w-4 h-4 text-textMuted">•</span>
-    }
-  }
-
-  const getPercentileColor = (value: number, avg: number) => {
-    if (value > avg * 1.1) return "text-green-500"
-    if (value < avg * 0.9) return "text-red-500"
-    return "text-amber-500"
-  }
-
-  const addComment = () => {
-    if (!newComment.trim()) return
-
-    const comment: TeamComment = {
-      id: comments.length + 1,
-      user: currentUser.name,
-      userAvatar: currentUser.avatar,
-      userColor: currentUser.color,
-      text: newComment,
-      time: new Date().toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' }),
-      likes: 0
-    }
-
-    setComments([...comments, comment])
-    setNewComment("")
-  }
-
-  const likeComment = (id: number) => {
-    setComments(comments.map(c => 
-      c.id === id ? { ...c, likes: c.likes + 1, liked: true } : c
-    ))
-  }
-
-  const shareWithTeam = () => {
-    if (!shareNote.trim()) return
-
-    // Her ville vi sendt til backend
-    console.log("Deler notat med teamet:", {
-      player: player?.player_name,
-      note: shareNote,
-      user: currentUser.name
-    })
-
-    setShareSuccess(true)
-    setTimeout(() => {
-      setShowShareModal(false)
-      setShareSuccess(false)
-      setShareNote("")
-    }, 2000)
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="relative">
-          <div className="w-16 h-16 border-4 border-brand/20 border-t-brand rounded-full animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-brand animate-pulse" />
-          </div>
-        </div>
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="relative w-12 h-12">
+        <div className="absolute inset-0 border-2 border-brand/20 border-t-brand rounded-full animate-spin" />
+        <Radar size={14} className="absolute inset-0 m-auto text-brand" />
       </div>
-    )
-  }
+    </div>
+  )
 
-  if (!player) {
-    return (
-      <div className="glass-panel p-8 text-center">
-        <p className="text-red mb-4">Fant ikke spilleren</p>
-        <Link href="/dashboard" className="text-brand hover:underline">
-          Gå tilbake til dashboard
-        </Link>
-      </div>
-    )
-  }
+  if (!player) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <p className="text-white font-bold">Spiller ikke funnet</p>
+      <Link href="/player" className="text-brand text-sm hover:opacity-80">← Tilbake til oversikt</Link>
+    </div>
+  )
 
-  const tierColor = player.player_tier === 'u23' 
-    ? 'bg-purple-500/20 text-purple border-purple-500/30' 
-    : 'bg-brand/20 text-brand border-brand/30'
+  const logoPath  = getLogoPath(player.team_name)
+  const segCfg    = SEGMENT_CFG[player.risk_upside_segment]
+  const tierCfg   = TIER_CFG[player.value_tier]
+  const isU23     = player.player_tier === "u23_prospect"
+  const SegIcon   = segCfg?.icon || Shield
 
-  const avgByPosition = {
-    'GK': { speed: 30.5, distance: 8.7, sprints: 6, intensity: 18 },
-    'DEF': { speed: 32.8, distance: 9.8, sprints: 12, intensity: 28 },
-    'MID': { speed: 34.2, distance: 11.2, sprints: 22, intensity: 42 },
-    'ATT': { speed: 35.1, distance: 10.7, sprints: 27, intensity: 38 }
-  }
-
-  const avg = avgByPosition[player.pos_group as keyof typeof avgByPosition] || avgByPosition['MID']
+  // Beste rolle
+  const bestRolleKey = ROLLE_CFG.find(r =>
+    r.label.toLowerCase().includes(player.best_role_no?.toLowerCase()) ||
+    player.best_role_no?.toLowerCase().includes(r.key)
+  )?.key || ROLLE_CFG[0].key
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Header med tilbakeknapp */}
-      <div className="flex items-center gap-4">
-        <Link 
-          href="/dashboard" 
-          className="glass-panel p-3 hover:bg-panelHover transition-all rounded-xl"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Spillerprofil</h1>
-          <p className="text-textMuted">Detaljert analyse og nøkkeltall</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-bg0" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* Hovedkort - Spillerinfo */}
-      <div className="glass-panel overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-brand/20 to-purple-500/20 relative">
-          <div className="absolute -bottom-12 left-8 flex items-end gap-4">
-            {player.team_logo && !logoError ? (
-              <div className="w-24 h-24 rounded-2xl bg-panel flex items-center justify-center shadow-2xl border-4 border-bg0 overflow-hidden">
-                <img 
-                  src={`http://localhost:8000${player.team_logo}`}
-                  alt={player.team_name}
-                  className="w-full h-full object-contain p-2"
-                  onError={() => setLogoError(true)}
-                />
-              </div>
-            ) : (
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-brand to-purple-500 flex items-center justify-center shadow-2xl border-4 border-bg0">
-                <User size={48} className="text-white" />
-              </div>
-            )}
-            <div className="mb-2">
-              <div className="w-12 h-12 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center backdrop-blur-sm">
-                <span className="text-2xl font-bold text-white">{player.shirt_number}</span>
-              </div>
-            </div>
+      {/* ── HERO HEADER ── */}
+      <div className="border-b border-white/5 relative overflow-hidden" style={{
+        background: "radial-gradient(ellipse 80% 80% at 50% -20%, rgba(99,102,241,0.1) 0%, transparent 60%)"
+      }}>
+        {/* Subtil bakgrunnslogo */}
+        {logoPath && !imgError && (
+          <div className="absolute right-0 top-0 h-full w-64 pointer-events-none select-none overflow-hidden">
+            <Image src={logoPath} alt="" fill
+              className="object-contain object-right opacity-[0.04] scale-110"
+              onError={() => setImgError(true)} />
           </div>
-        </div>
+        )}
 
-        <div className="pt-16 p-8">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-3xl font-bold">{player.player_name}</h2>
-                <span className={`badge ${tierColor}`}>
-                  {player.player_tier === 'u23' ? 'U23' : 'SENIOR'}
-                </span>
-              </div>
-              
-              <p className="text-xl text-textMuted mb-2">
-                {player.team_name} • {player.position || player.pos_group} • #{player.shirt_number}
-              </p>
-              
-              <div className="flex items-center gap-2 mb-3">
-                <div className="bg-green-500/20 px-3 py-1 rounded-full flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-green" />
-                  <span className="font-bold text-green">
-                    {formatMarketValue(player.market_value, player.market_value_currency)}
-                  </span>
-                  {getTrendIcon(player.market_value_trend)}
+        <div className="max-w-7xl mx-auto px-8 py-8 relative">
+          {/* Tilbake */}
+          <Link href="/player"
+            className="inline-flex items-center gap-2 text-xs text-textMuted hover:text-white transition-colors mb-6">
+            <ArrowLeft size={13} />
+            Tilbake til spilleroversikt
+          </Link>
+
+          <div className="flex items-start gap-8">
+
+            {/* Klubblogo */}
+            <div className="flex-shrink-0">
+              {logoPath && !imgError ? (
+                <div className="w-24 h-24 rounded-2xl flex items-center justify-center border border-white/8 relative overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.04)" }}>
+                  <Image src={logoPath} alt={player.team_name}
+                    width={80} height={80}
+                    className="object-contain p-2"
+                    onError={() => setImgError(true)} />
                 </div>
-              </div>
-
-              {player.role_profile && (
-                <div className="inline-block bg-panel rounded-lg px-4 py-2 border border-brand/20">
-                  <span className="text-sm text-textMuted">Rolleprofil: </span>
-                  <span className="font-bold text-brand">{player.role_profile}</span>
+              ) : (
+                <div className="w-24 h-24 rounded-2xl flex items-center justify-center border border-white/8"
+                  style={{ background: "rgba(99,102,241,0.08)" }}>
+                  <span className="text-3xl font-black text-brand">
+                    {player.player_name.charAt(0)}
+                  </span>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-4">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-brand/20 border-4 border-brand flex items-center justify-center mb-2">
-                  <span className="text-2xl font-bold text-brand">{player.fair_score?.toFixed(2)}</span>
-                </div>
-                <p className="text-xs text-textMuted">Prestasjon</p>
+            {/* Navn & info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {/* Posisjon-badge */}
+                <span className="text-xs font-bold px-2.5 py-1 rounded-lg"
+                  style={{
+                    background: `${POS_COLOR[player.pos_group]}15`,
+                    color: POS_COLOR[player.pos_group],
+                    border: `1px solid ${POS_COLOR[player.pos_group]}25`
+                  }}>
+                  {player.pos_group}
+                </span>
+                {/* Value tier */}
+                {tierCfg && (
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-lg"
+                    style={{ background: tierCfg.bg, color: tierCfg.color, border: `1px solid ${tierCfg.color}25` }}>
+                    {player.value_tier}
+                  </span>
+                )}
+                {/* U23 */}
+                {isU23 && (
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-lg"
+                    style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.2)" }}>
+                    U23 Prospect
+                  </span>
+                )}
+                {/* Segment */}
+                {segCfg && (
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-lg flex items-center gap-1.5"
+                    style={{ background: "rgba(255,255,255,0.04)", color: "rgba(148,163,184,0.8)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <SegIcon size={10} />
+                    {segCfg.label}
+                  </span>
+                )}
               </div>
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full bg-purple-500/20 border-4 border-purple-500 flex items-center justify-center mb-2">
-                  <span className="text-2xl font-bold text-purple">{player.forecast_score?.toFixed(2)}</span>
-                </div>
-                <p className="text-xs text-textMuted">Potensial</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <div className="bg-panel rounded-xl p-4">
-              <Calendar className="w-5 h-5 text-brand mb-2" />
-              <p className="text-2xl font-bold">{player.age}</p>
-              <p className="text-xs text-textMuted">Alder</p>
+              <h1 className="text-4xl font-black text-white mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
+                {player.player_name}
+              </h1>
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-textMuted">
+                {/* Klubblogo liten + navn */}
+                <div className="flex items-center gap-2">
+                  {logoPath && !imgError ? (
+                    <Image src={logoPath} alt={player.team_name} width={18} height={18} className="object-contain" />
+                  ) : null}
+                  <span className="font-medium text-white">{player.team_name}</span>
+                </div>
+                <span>·</span>
+                <span>{player.nationality}</span>
+                <span>·</span>
+                <span>{player.age} år</span>
+                <span>·</span>
+                <span>{player.minutes?.toLocaleString()} min</span>
+                <span>·</span>
+                <span>{player.games} kamper</span>
+                {player.cluster_label && (
+                  <>
+                    <span>·</span>
+                    <span className="text-brand font-medium">{player.cluster_label}</span>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="bg-panel rounded-xl p-4">
-              <Clock className="w-5 h-5 text-brand mb-2" />
-              <p className="text-2xl font-bold">{player.minutes?.toLocaleString()}</p>
-              <p className="text-xs text-textMuted">Minutter</p>
-            </div>
-            <div className="bg-panel rounded-xl p-4">
-              <Target className="w-5 h-5 text-brand mb-2" />
-              <p className="text-2xl font-bold">{player.goals || 0}</p>
-              <p className="text-xs text-textMuted">Mål</p>
-            </div>
-            <div className="bg-panel rounded-xl p-4">
-              <Zap className="w-5 h-5 text-brand mb-2" />
-              <p className="text-2xl font-bold">{player.assists || 0}</p>
-              <p className="text-xs text-textMuted">Assist</p>
+
+            {/* Scout-prioritet stor */}
+            <div className="hidden lg:flex flex-col items-end gap-1 flex-shrink-0">
+              <p className="text-[10px] uppercase tracking-widest text-textMuted font-medium">Scout-prioritet</p>
+              <p className="text-5xl font-black text-brand" style={{ fontFamily: "'Syne', sans-serif" }}>
+                {player.scout_priority?.toFixed(2)}
+              </p>
+              <p className="text-xs text-textMuted">#{Math.round((1 - player.percentile_pos / 100) * 254) || "—"} i ligaen</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigasjonsfaner - NY med "Team" fane */}
-      <div className="flex gap-2 border-b border-white/5 pb-2 overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("radar")}
-          className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
-            activeTab === "radar" 
-              ? "bg-brand text-white" 
-              : "text-textMuted hover:text-text hover:bg-panel"
-          }`}
-        >
-          <BarChart3 className="w-4 h-4 inline mr-2" />
-          Rolleprofil
-        </button>
-        <button
-          onClick={() => setActiveTab("stats")}
-          className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
-            activeTab === "stats" 
-              ? "bg-brand text-white" 
-              : "text-textMuted hover:text-text hover:bg-panel"
-          }`}
-        >
-          <Activity className="w-4 h-4 inline mr-2" />
-          Detaljert statistikk
-        </button>
-        <button
-          onClick={() => setActiveTab("physical")}
-          className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
-            activeTab === "physical" 
-              ? "bg-brand text-white" 
-              : "text-textMuted hover:text-text hover:bg-panel"
-          }`}
-        >
-          <Gauge className="w-4 h-4 inline mr-2" />
-          Fysisk
-        </button>
-        <button
-          onClick={() => setActiveTab("team")}
-          className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
-            activeTab === "team" 
-              ? "bg-brand text-white" 
-              : "text-textMuted hover:text-text hover:bg-panel"
-          }`}
-        >
-          <Users className="w-4 h-4 inline mr-2" />
-          Team ({comments.length})
-        </button>
-        <button
-          onClick={() => setActiveTab("references")}
-          className={`px-6 py-2 rounded-lg transition-all whitespace-nowrap ${
-            activeTab === "references" 
-              ? "bg-brand text-white" 
-              : "text-textMuted hover:text-text hover:bg-panel"
-          }`}
-        >
-          <MessageSquare className="w-4 h-4 inline mr-2" />
-          Trenerreferanser
-        </button>
-      </div>
+      <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
 
-      {/* Tab 1: Rolleprofil */}
-      {activeTab === "radar" && (
-        <div className="glass-panel p-6">
-          <h3 className="text-xl font-bold mb-4">Rolleprofil (sammenlignet med posisjon)</h3>
-          <div className="h-96">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={radarData}>
-                <PolarGrid stroke="#ffffff20" />
-                <PolarAngleAxis 
-                  dataKey="kategori" 
-                  tick={{ fill: '#94a3b8', fontSize: 12 }}
-                />
-                <PolarRadiusAxis 
-                  angle={30} 
-                  domain={[0, 100]} 
-                  tick={{ fill: '#94a3b8', fontSize: 10 }}
-                  tickCount={5}
-                />
-                <Radar
-                  name={player.player_name}
-                  dataKey="verdi"
-                  stroke="#3b82f6"
-                  fill="#3b82f6"
-                  fillOpacity={0.3}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#0a0e17', 
-                    border: '1px solid #ffffff20',
-                    borderRadius: '8px'
-                  }}
-                  formatter={(value: any) => [`${value.toFixed(1)}%`, 'Percentil']}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          <p className="text-xs text-textMuted text-center mt-4">
-            * Verdier viser percentil sammenlignet med andre spillere i samme posisjon
-          </p>
+        {/* ══════════════════════════════════════
+            KPI STRIP
+        ══════════════════════════════════════ */}
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+          <KpiCard label="Fair Score"      value={player.fair_score?.toFixed(2)}      highlight />
+          <KpiCard label="Forecast Score"  value={player.forecast_score?.toFixed(2)}  highlight />
+          <KpiCard label="Reliabilitet"    value={`${(player.reliability * 100).toFixed(0)}%`} sub="Datagrunnlag" />
+          <KpiCard label="ROI-indeks"      value={player.roi_index?.toFixed(2)}       sub="Risikojustert verdi" />
+          <KpiCard label="Percentil"       value={`${player.percentile_pos?.toFixed(0)}%`} sub={`Blant ${player.pos_group}`} />
+          <KpiCard label="Beste rolle"     value={player.best_role_no || "—"} />
         </div>
-      )}
 
-      {/* Tab 2: Detaljert statistikk */}
-      {activeTab === "stats" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="glass-panel p-6">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Activity className="text-brand" />
-              Nøkkeltall per 90
-            </h3>
-            
-            <div className="space-y-5">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-textMuted">Mål per 90</span>
-                  <span className="font-bold text-lg">{player.goals_per90?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-brand to-brandLight"
-                    style={{ width: `${Math.min((player.goals_per90 || 0) * 50, 100)}%` }}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-textMuted">Assist per 90</span>
-                  <span className="font-bold text-lg">{player.assists_per90?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-brand to-brandLight"
-                    style={{ width: `${Math.min((player.assists_per90 || 0) * 50, 100)}%` }}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-textMuted">Nøkkelpasninger per 90</span>
-                  <span className="font-bold text-lg">{player.passes_key_per90?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-brand to-brandLight"
-                    style={{ width: `${Math.min((player.passes_key_per90 || 0) * 20, 100)}%` }}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-textMuted">Taklinger per 90</span>
-                  <span className="font-bold text-lg">{player.tackles_total_per90?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-brand to-brandLight"
-                    style={{ width: `${Math.min((player.tackles_total_per90 || 0) * 15, 100)}%` }}
-                  />
-                </div>
-              </div>
+        {/* ══════════════════════════════════════
+            RADAR + PER-90
+        ══════════════════════════════════════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* Radar */}
+          <div className="glass-panel rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Activity size={13} className="text-brand" />
+              <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Styrker vs. posisjonssnitt</span>
             </div>
-          </div>
-
-          <div className="glass-panel p-6">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <Shield className="text-brand" />
-              Datagrunnlag
-            </h3>
-            
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-textMuted">Datakvalitet</span>
-                  <span className="font-bold">{((player.reliability || 0) * 100).toFixed(0)}%</span>
-                </div>
-                <div className="w-full h-3 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-green to-greenLight"
-                    style={{ width: `${(player.reliability || 0) * 100}%` }}
+            {radar.length > 0 ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <RadarChart data={radar}>
+                  <PolarGrid stroke="rgba(255,255,255,0.06)" />
+                  <PolarAngleAxis dataKey="subject"
+                    tick={{ fill: "rgba(148,163,184,0.7)", fontSize: 10 }} />
+                  <RechartsRadar name={player.player_name}
+                    dataKey="value"
+                    stroke="#6366f1"
+                    fill="#6366f1"
+                    fillOpacity={0.18}
+                    strokeWidth={2}
                   />
-                </div>
-                <p className="text-xs text-textMuted mt-1">
-                  Basert på {player.minutes} spilte minutter
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-white/5">
-                <p className="text-textMuted text-sm mb-2">Total score</p>
-                <p className="text-3xl font-bold text-brand">{player.total_score?.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Fysisk statistikk */}
-      {activeTab === "physical" && player.physical && (
-        <div className="glass-panel p-6">
-          <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-            <Gauge className="text-brand" />
-            Fysisk statistikk
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Gauge className="w-5 h-5 text-brand" />
-                  <span className="font-semibold">Topphastighet</span>
-                </div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-3xl font-bold text-white">{player.physical.top_speed} <span className="text-sm font-normal text-textMuted">km/t</span></span>
-                  <span className={getPercentileColor(player.physical.top_speed, avg.speed)}>
-                    {player.physical.top_speed > avg.speed ? '▲' : '▼'} {Math.abs(player.physical.top_speed - avg.speed).toFixed(1)} km/t
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-brand to-brandLight"
-                    style={{ width: `${(player.physical.top_speed / 40) * 100}%` }}
+                  <Tooltip
+                    contentStyle={{ background: "rgba(12,12,20,0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, fontSize: 11 }}
+                    labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                    itemStyle={{ color: "#a5b4fc" }}
                   />
-                </div>
-                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.speed} km/t</p>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Footprints className="w-5 h-5 text-green-500" />
-                  <span className="font-semibold">Løpsdistanse per 90</span>
-                </div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-3xl font-bold text-white">{player.physical.distance_per90} <span className="text-sm font-normal text-textMuted">km</span></span>
-                  <span className={getPercentileColor(player.physical.distance_per90, avg.distance)}>
-                    {player.physical.distance_per90 > avg.distance ? '▲' : '▼'} {Math.abs(player.physical.distance_per90 - avg.distance).toFixed(1)} km
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-green-500 to-green-400"
-                    style={{ width: `${(player.physical.distance_per90 / 14) * 100}%` }}
-                  />
-                </div>
-                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.distance} km</p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <ZapOff className="w-5 h-5 text-amber-500" />
-                  <span className="font-semibold">Sprint-antall per 90</span>
-                </div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-3xl font-bold text-white">{player.physical.sprints_per90}</span>
-                  <span className={getPercentileColor(player.physical.sprints_per90, avg.sprints)}>
-                    {player.physical.sprints_per90 > avg.sprints ? '▲' : '▼'} {Math.abs(player.physical.sprints_per90 - avg.sprints)}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-amber-500 to-amber-400"
-                    style={{ width: `${(player.physical.sprints_per90 / 35) * 100}%` }}
-                  />
-                </div>
-                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.sprints}</p>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Flame className="w-5 h-5 text-red-500" />
-                  <span className="font-semibold">Høyintensitetsløp per 90</span>
-                </div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-3xl font-bold text-white">{player.physical.high_intensity_per90}</span>
-                  <span className={getPercentileColor(player.physical.high_intensity_per90, avg.intensity)}>
-                    {player.physical.high_intensity_per90 > avg.intensity ? '▲' : '▼'} {Math.abs(player.physical.high_intensity_per90 - avg.intensity)}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-panel rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-red-500 to-red-400"
-                    style={{ width: `${(player.physical.high_intensity_per90 / 60) * 100}%` }}
-                  />
-                </div>
-                <p className="text-xs text-textMuted mt-1">Snitt {player.pos_group}: {avg.intensity}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 4: Team-kommentarer (NY!) */}
-      {activeTab === "team" && (
-        <div className="glass-panel p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold flex items-center gap-2">
-              <Users className="text-brand" />
-              Team-diskusjon om {player.player_name.split(' ').pop()}
-            </h3>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-textMuted">Logget inn som:</span>
-              <select
-                value={currentUser.id}
-                onChange={(e) => {
-                  const user = TEAM_MEMBERS.find(m => m.id === parseInt(e.target.value))
-                  if (user) setCurrentUser(user)
-                }}
-                className="bg-panel border border-white/5 rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-brand"
-              >
-                {TEAM_MEMBERS.map(m => (
-                  <option key={m.id} value={m.id}>{m.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Eksisterende kommentarer */}
-          <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-            {comments.map((comment) => (
-              <div key={comment.id} className="bg-panel rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-6 h-6 rounded-full ${comment.userColor} flex items-center justify-center text-white text-xs font-bold`}>
-                      {comment.userAvatar}
-                    </div>
-                    <span className="font-bold text-sm">{comment.user}</span>
-                    <span className="text-xs text-textMuted">{comment.time}</span>
-                  </div>
-                  <button 
-                    onClick={() => likeComment(comment.id)}
-                    className={`flex items-center gap-1 text-xs ${comment.liked ? 'text-brand' : 'text-textMuted'} hover:text-brand transition-colors`}
-                  >
-                    <ThumbsUp size={12} />
-                    <span>{comment.likes}</span>
-                  </button>
-                </div>
-                <p className="text-sm">{comment.text}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Skriv ny kommentar */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addComment()}
-              placeholder={`Skriv som ${currentUser.name}...`}
-              className="flex-1 bg-panel border border-white/5 rounded-lg px-4 py-2 focus:outline-none focus:border-brand"
-            />
-            <button
-              onClick={addComment}
-              className="px-4 py-2 bg-brand/10 hover:bg-brand/20 text-brand rounded-lg transition-all"
-            >
-              <Send size={18} />
-            </button>
-          </div>
-
-          {/* Del med teamet knapp */}
-          <div className="mt-4 pt-4 border-t border-white/5">
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="w-full flex items-center justify-center gap-2 bg-brand/10 hover:bg-brand/20 text-brand py-3 rounded-lg transition-all"
-            >
-              <Share2 size={18} />
-              <span>Del notat om {player.player_name.split(' ').pop()} med teamet</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 5: Trenerreferanser */}
-      {activeTab === "references" && (
-        <div className="glass-panel p-6">
-          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <MessageSquare className="text-brand" />
-            Hva tidligere trenere sier
-          </h3>
-          
-          <div className="space-y-4">
-            <div className="bg-panel rounded-xl p-5 border-l-4 border-brand">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <p className="font-bold text-lg">Kjetil Rekdal</p>
-                  <p className="text-sm text-textMuted">Ham-Kam • 2025</p>
-                </div>
-                <div className="bg-brand/20 p-2 rounded-full">
-                  <MessageSquare className="w-4 h-4 text-brand" />
-                </div>
-              </div>
-              <p className="text-text italic">"En ledertype som gjør laget bedre. En av de beste jeg har trent."</p>
-            </div>
-            
-            <div className="bg-panel rounded-xl p-5 border-l-4 border-brand">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <p className="font-bold text-lg">Eirik Horneland</p>
-                  <p className="text-sm text-textMuted">Brann • 2024</p>
-                </div>
-                <div className="bg-brand/20 p-2 rounded-full">
-                  <MessageSquare className="w-4 h-4 text-brand" />
-                </div>
-              </div>
-              <p className="text-text italic">"Solid defensivt, god i duellspillet. En stopper man kan bygge lag rundt."</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal for å dele notat */}
-      {showShareModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="glass-panel w-full max-w-md p-6">
-            <h3 className="text-xl font-bold mb-4">Del notat med teamet</h3>
-            
-            {shareSuccess ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Share2 className="w-8 h-8 text-green-500" />
-                </div>
-                <p className="text-green-500 font-bold mb-2">Notat delt!</p>
-                <p className="text-sm text-textMuted">Teamet ditt har fått varsel</p>
-              </div>
+                </RadarChart>
+              </ResponsiveContainer>
             ) : (
-              <>
-                <textarea
-                  value={shareNote}
-                  onChange={(e) => setShareNote(e.target.value)}
-                  placeholder="Skriv dine vurderinger om spilleren..."
-                  rows={5}
-                  className="w-full bg-panel border border-white/5 rounded-lg p-4 mb-4 focus:outline-none focus:border-brand resize-none"
-                  autoFocus
-                />
-                
-                <div className="flex gap-3">
-                  <button
-                    onClick={shareWithTeam}
-                    disabled={!shareNote.trim()}
-                    className="flex-1 bg-brand hover:bg-brandDark text-white py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Del
-                  </button>
-                  <button
-                    onClick={() => setShowShareModal(false)}
-                    className="flex-1 bg-panel hover:bg-panelHover py-3 rounded-lg transition-all"
-                  >
-                    Avbryt
-                  </button>
-                </div>
-              </>
+              <div className="flex items-center justify-center h-64 text-textMuted text-sm">
+                Radardata ikke tilgjengelig
+              </div>
             )}
           </div>
+
+          {/* Per-90 stats */}
+          <div className="glass-panel rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <BarChart3 size={13} className="text-brand" />
+              <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Per-90 produksjon</span>
+            </div>
+            <div className="space-y-4">
+              <StatBar label="Mål per 90"          value={player.goals_per90}         max={1.2} />
+              <StatBar label="Assist per 90"        value={player.assists_per90}       max={0.8} />
+              <StatBar label="Nøkkelpassninger / 90" value={player.passes_key_per90}  max={3}   />
+              <StatBar label="Taklingsvunnet / 90"  value={player.tackles_total_per90} max={8}   />
+              <StatBar label="Dueller vunnet / 90"  value={player.duels_won_per90}    max={12}  />
+              <StatBar label="Skudd per 90"         value={player.shots_per90}         max={4}   />
+              <StatBar label="Driblinger / 90"      value={player.dribbles_per90}      max={5}   />
+              <StatBar label="Intensitet / 90"      value={player.intensity_per90}     max={15}  />
+            </div>
+          </div>
         </div>
-      )}
 
-      {/* Handlingsknapper */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link 
-          href={`/duell?a=${encodeURIComponent(player.player_name)}`}
-          className="glass-panel p-4 text-center hover:bg-panelHover transition-all group"
-        >
-          <Sword className="w-6 h-6 text-brand mx-auto mb-2 group-hover:scale-110 transition-transform" />
-          <p className="font-semibold">Sammenlign</p>
-          <p className="text-xs text-textMuted">Gå til duell</p>
-        </Link>
-        
-        <button className="glass-panel p-4 text-center hover:bg-panelHover transition-all group">
-          <Star className="w-6 h-6 text-amber mx-auto mb-2 group-hover:scale-110 transition-transform" />
-          <p className="font-semibold">Shortlist</p>
-          <p className="text-xs text-textMuted">Legg til</p>
-        </button>
-        
-        <Link 
-          href="/scout"
-          className="glass-panel p-4 text-center hover:bg-panelHover transition-all group"
-        >
-          <Eye className="w-6 h-6 text-purple mx-auto mb-2 group-hover:scale-110 transition-transform" />
-          <p className="font-semibold">Scout</p>
-          <p className="text-xs text-textMuted">Se U23</p>
-        </Link>
+        {/* ══════════════════════════════════════
+            EFFEKTIVITET
+        ══════════════════════════════════════ */}
+        <div className="glass-panel rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Zap size={13} className="text-brand" />
+            <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Effektivitet per handling</span>
+          </div>
+          <div className="flex items-center justify-around flex-wrap gap-6">
+            <EffGauge label="Skuddeff."    value={player.shot_efficiency}    />
+            <EffGauge label="Duelleeff."   value={player.duel_efficiency}    />
+            <EffGauge label="Pasningseff." value={player.pass_efficiency}    />
+            <EffGauge label="Dribbleff."   value={player.dribble_efficiency} />
+            <EffGauge label="Risikoandel"  value={player.risk_rate}          />
+          </div>
+        </div>
 
-        <Link 
-          href="/tropp"
-          className="glass-panel p-4 text-center hover:bg-panelHover transition-all group"
-        >
-          <Users className="w-6 h-6 text-green mx-auto mb-2 group-hover:scale-110 transition-transform" />
-          <p className="font-semibold">Tropp</p>
-          <p className="text-xs text-textMuted">Legg til i 11er</p>
-        </Link>
+        {/* ══════════════════════════════════════
+            ROLLEANALYSE
+        ══════════════════════════════════════ */}
+        <div className="glass-panel rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <Star size={13} className="text-brand" />
+            <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Rolleanalyse — WSM</span>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {ROLLE_CFG.map(rolle => {
+              const rawVal  = (player as any)[rolle.raw]  || 0
+              const valVal  = (player as any)[rolle.val]  || 0
+              const upside  = (player as any)[rolle.upside] || 0
+              const isBest  = player.best_role_no?.toLowerCase().includes(rolle.key) ||
+                              rolle.label.toLowerCase().includes(player.best_role_no?.toLowerCase())
+              return (
+                <div key={rolle.key}
+                  className="rounded-2xl p-5 border transition-all relative overflow-hidden"
+                  style={{
+                    background: isBest ? "rgba(99,102,241,0.08)" : "rgba(255,255,255,0.02)",
+                    borderColor: isBest ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.06)"
+                  }}>
+                  {isBest && (
+                    <div className="absolute inset-x-0 top-0 h-px"
+                      style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.6), transparent)" }} />
+                  )}
+                  {isBest && (
+                    <span className="absolute top-3 right-3 text-[9px] font-black px-1.5 py-0.5 rounded"
+                      style={{ background: "rgba(99,102,241,0.2)", color: "#a5b4fc" }}>BESTE</span>
+                  )}
+                  <p className="text-sm font-bold text-white mb-4 pr-12">{rolle.label}</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-textMuted">Raw score</span>
+                      <span className="font-bold text-white">{rawVal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-textMuted">Value score</span>
+                      <span className="font-bold text-brand">{valVal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-textMuted">Oppside vs snitt</span>
+                      <span className={`font-bold ${upside > 0 ? "text-white" : "text-textMuted"}`}>
+                        {upside > 0 ? "+" : ""}{upside.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════
+            WHATIF — kun U23
+        ══════════════════════════════════════ */}
+        {isU23 && (
+          <div className="glass-panel rounded-2xl p-6 border border-brand/10" style={{
+            background: "linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 60%)"
+          }}>
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp size={13} className="text-brand" />
+              <span className="text-xs uppercase tracking-widest text-textMuted font-medium">What-if — simulert ved 900 min</span>
+            </div>
+            <p className="text-xs text-textMuted mb-6">Hva ville scorene vært om spilleren hadde 900 minutters spilletid?</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {ROLLE_CFG.map(rolle => {
+                const val = (player as any)[rolle.whatif]
+                if (!val) return null
+                return (
+                  <div key={rolle.key} className="text-center p-4 rounded-xl border border-white/6"
+                    style={{ background: "rgba(99,102,241,0.05)" }}>
+                    <p className="text-2xl font-black text-brand mb-1">{val.toFixed(2)}</p>
+                    <p className="text-[11px] text-textMuted">{rolle.label}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════
+            LIGNENDE SPILLERE
+        ══════════════════════════════════════ */}
+        {similar.length > 0 && (
+          <div className="glass-panel rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Users size={13} className="text-brand" />
+              <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Lignende spillere</span>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              {similar.map(s => {
+                const sLogo = getLogoPath(s.team_name)
+                return (
+                  <Link key={s.player_name} href={`/player/${encodeURIComponent(s.player_name)}`}
+                    className="rounded-2xl p-4 border border-white/5 hover:border-brand/20 hover:bg-brand/5 transition-all group text-center">
+                    <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center border border-white/8"
+                      style={{ background: "rgba(255,255,255,0.04)" }}>
+                      {sLogo ? (
+                        <Image src={sLogo} alt={s.team_name} width={36} height={36} className="object-contain p-1" />
+                      ) : (
+                        <span className="text-lg font-black text-textMuted">{s.player_name.charAt(0)}</span>
+                      )}
+                    </div>
+                    <p className="text-sm font-bold text-white truncate group-hover:text-brand transition-colors mb-1">
+                      {s.player_name}
+                    </p>
+                    <p className="text-[10px] text-textMuted truncate mb-2">{s.team_name}</p>
+                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold text-textMuted"
+                        style={{ background: "rgba(255,255,255,0.06)" }}>{s.pos_group}</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold"
+                        style={{ background: TIER_CFG[s.value_tier]?.bg || "rgba(255,255,255,0.06)", color: TIER_CFG[s.value_tier]?.color || "#888" }}>
+                        {s.value_tier}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-textMuted mt-2">
+                      FS {s.fair_score?.toFixed(2)}
+                    </p>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )

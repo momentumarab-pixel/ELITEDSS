@@ -1,0 +1,255 @@
+Spiller id,Spillernavn,Fornavn,Etternavn,Alder,Nasjonalitet,Lag id,Lag navn,Posisjonslinje,Rolle,Kamper,Starter,Minutter,Rating,Mål,Målgivende,Skudd totalt,Skudd på mål,Pasninger totalt,Nøkkelpasninger,Pasningspresisjon,Taklinger,Blokkeringer,Brudd,Dueller totalt,Dueller vunnet,Driblinger forsøk,Driblinger vellykket,Frispark fått,Frispark gjort,Gule kort,Røde kort
+36966,J. de Boer,Jan,de Boer,25.0,Netherlands,2142,Bryne,Goalkeeper,Goalkeeper,31,31,2712,6.67,0,0,,,826,1.0,45.6,1.0,,,15,11,1.0,,3,1.0,1,1
+264378,S. Tangvik,Sander,Tangvik,23.0,Norway,331,Rosenborg,Goalkeeper,Goalkeeper,30,30,2700,7.13,0,0,,,866,,74.9,,,,14,13,,,5,,1,0
+57429,M. Dyngeland,Mathias,Lønne Dyngeland,30.0,Norway,319,Brann,Goalkeeper,Goalkeeper,30,30,2700,6.75,0,0,,,1183,1.0,75.3,3.0,,,18,15,1.0,1.0,3,,1,0
+39218,R. Jenssen,Ruben,Yttergård Jenssen,37.0,Norway,325,Tromso,Midfielder,Sentral midt,30,30,2700,7.21,2,7,12.0,6.0,1663,60.0,87.3,20.0,6.0,16.0,164,76,26.0,9.0,35,21.0,2,0
+19492,J. Haugaard,Jakob,Let Haugaard,33.0,Denmark,325,Tromso,Goalkeeper,Goalkeeper,30,30,2700,6.85,0,0,,,1410,2.0,70.6,,,,19,18,1.0,1.0,12,,3,0
+47770,F. Ottosson,Karl Filip,Ottosson,29.0,Sweden,332,Sandefjord,Midfielder,Sentral midt,30,30,2691,7.28,1,2,7.0,4.0,2357,43.0,88.1,48.0,16.0,24.0,121,70,8.0,6.0,7,21.0,3,0
+39161,D. Ulvestad,Dan Peter,Ulvestad,36.0,Norway,320,Kristiansund BK,Defender,Stopper,30,30,2684,7.02,1,0,7.0,4.0,1627,2.0,89.3,18.0,37.0,31.0,154,98,2.0,2.0,11,9.0,1,0
+151406,E. Saunes,Eirik,Franke Saunes,27.0,Norway,2142,Bryne,Midfielder,Kant,30,30,2633,7.02,1,3,18.0,11.0,1202,33.0,77.8,52.0,8.0,46.0,225,115,31.0,14.0,12,16.0,1,0
+39055,N. Haikin,Nikita,Haikin,30.0,Russia,327,Bodo/Glimt,Goalkeeper,Goalkeeper,30,30,2618,6.91,0,0,,,878,,77.4,1.0,,,10,10,,,2,,1,0
+1177,G. Valsvik,Gustav,Valsvik,32.0,Norway,324,Stromsgodset,Defender,Stopper,29,29,2610,7.24,2,1,21.0,8.0,1776,10.0,84.4,36.0,37.0,42.0,267,180,8.0,6.0,25,18.0,4,0
+408223,Mamour Ndiaye,Mamour,Ndiaye,20.0,Senegal,333,Sarpsborg 08 FF,Goalkeeper,Goalkeeper,29,29,2610,7.03,0,0,,,866,4.0,57.2,3.0,,,40,34,2.0,1.0,5,1.0,2,1
+38689,M. Koch,Menno,Koch,31.0,Netherlands,333,Sarpsborg 08 FF,Defender,Stopper,29,29,2604,7.06,0,2,8.0,2.0,1285,5.0,90.1,35.0,24.0,32.0,230,138,4.0,3.0,10,39.0,6,0
+99538,L. Cornic,Leo Erik Jean,Cornic,24.0,Norway,325,Tromso,Defender,Back,29,29,2597,7.07,5,3,16.0,7.0,804,32.0,76.5,53.0,3.0,22.0,213,113,10.0,,28,41.0,5,0
+314257,T. Guddal,Tobias,Kvalvågnes Guddal,23.0,Norway,325,Tromso,Forsvar,Stopper,0,0,2587,7.22,0,1,8.0,4.0,2320,4.0,90.5,33.0,15.0,55.0,238,150,18.0,11.0,15,33.0,4,0
+180937,H. Falchener,Henrik,Sælebakke Falchener,22.0,Norway,759,Viking,Defender,Stopper,29,29,2578,7.41,6,0,27.0,13.0,1695,6.0,88.5,31.0,22.0,24.0,283,173,,,14,36.0,4,0
+39340,H. Stengel,Herman,Sørby Stengel,30.0,Norway,324,Stromsgodset,Midfielder,Sentral midt,29,29,2575,7.03,3,1,14.0,8.0,1081,43.0,87.4,22.0,7.0,26.0,94,38,10.0,2.0,7,9.0,0,0
+410596,S. Kristiansen,Stian,Kristiansen,26.0,Norway,332,Sandefjord,Defender,Stopper,29,29,2565,7.08,2,1,13.0,6.0,2111,9.0,85.5,16.0,24.0,41.0,268,158,12.0,9.0,52,34.0,4,0
+94541,J. Bell,Joe,Zen Robert Bell,26.0,New Zealand,759,Viking,Midfielder,Sentral midt,29,28,2542,7.34,3,4,19.0,9.0,1701,42.0,86.8,62.0,7.0,38.0,254,138,28.0,15.0,40,29.0,5,0
+39349,J. Karlstrøm,Jacob,Karlstrøm,28.0,Norway,329,Molde,Goalkeeper,Goalkeeper,28,28,2520,6.96,0,1,,,1032,1.0,75.6,,,,13,11,,,5,1.0,3,0
+351483,F. Sjøvold,Fredrik,Sjøvold,22.0,Norway,327,Bodo/Glimt,Forsvar,Back,30,30,2516,7.29,3,4,16.0,8.0,1716,33.0,89.7,52.0,4.0,16.0,176,98,34.0,20.0,18,15.0,1,0
+145953,E. Kornvig,Emil,Nestved Kornvig,25.0,Denmark,319,Brann,Midfielder,Sentral midt,29,29,2510,7.31,8,3,37.0,17.0,1327,30.0,81.5,48.0,6.0,29.0,371,197,47.0,22.0,79,48.0,8,0
+416062,E. Helland,Eivind,Fauske Helland,20.0,Norway,319,Brann,Defender,Stopper,28,28,2504,6.98,0,1,7.0,3.0,2099,10.0,90.6,31.0,18.0,20.0,236,138,9.0,3.0,16,26.0,8,0
+39036,E. Breivik,Emil,Varhaugvik Breivik,25.0,Norway,329,Molde,Midfielder,Sentral midt,28,28,2498,7.29,4,5,30.0,11.0,1341,45.0,81.6,65.0,9.0,37.0,274,125,46.0,16.0,30,33.0,8,0
+128762,M. Woledzi,Maxwell,Woledzi,24.0,Ghana,2149,Fredrikstad,Defender,Stopper,29,28,2497,7.19,0,0,12.0,4.0,1422,7.0,89.2,69.0,21.0,52.0,257,160,45.0,23.0,21,20.0,4,0
+161589,Duarte Moreira,Duarte Miguel,Ramos Moreira,24.0,Portugal,2142,Bryne,Midfielder,Spiss,32,29,2476,6.94,8,7,47.0,20.0,588,28.0,67.0,21.0,1.0,10.0,261,100,59.0,15.0,38,30.0,3,0
+111329,L. Owusu,Leonard,Owusu,28.0,Ghana,2149,Fredrikstad,Midfielder,Sentral midt,29,28,2463,6.95,2,0,12.0,5.0,1453,8.0,87.5,42.0,8.0,15.0,194,101,28.0,17.0,28,20.0,6,0
+1289,J. Haahr,Jacob,Haahr Steffensen,23.0,Denmark,2142,Bryne,Defender,Stopper,29,29,2461,6.92,1,0,8.0,2.0,1370,5.0,82.6,28.0,22.0,38.0,141,80,8.0,3.0,13,21.0,3,0
+216765,V. Skjærvik,Vetle,Skjærvik,25.0,Norway,325,Tromso,Defender,Stopper,28,28,2460,7.11,2,1,7.0,2.0,1836,13.0,87.4,49.0,18.0,18.0,184,100,12.0,7.0,18,39.0,8,0
+39276,M. Sandberg,Robert Marcus,Sandberg,35.0,Sweden,2159,Ham-Kam,Goalkeeper,Goalkeeper,27,27,2430,7.13,0,0,,,903,1.0,51.9,,,,19,18,,,3,,1,0
+396407,J. Hjertø-Dahl,Jens,Hjertø-Dahl,20.0,Norway,325,Tromso,Midfielder,Sentral midt,30,28,2383,7.04,4,4,34.0,21.0,887,30.0,82.1,56.0,6.0,15.0,334,139,69.0,32.0,35,42.0,3,0
+39058,F. Bjørkan,Fredrik André,Bjørkan,27.0,Norway,327,Bodo/Glimt,Defender,Back,29,29,2382,7.43,3,2,13.0,9.0,1974,32.0,90.1,46.0,7.0,20.0,249,140,74.0,36.0,51,19.0,1,0
+48086,E. Haugan,Eirik,Haugan,28.0,Norway,329,Molde,Defender,Back,27,26,2365,7.19,0,0,10.0,2.0,2040,7.0,91.2,50.0,20.0,32.0,223,132,15.0,8.0,25,25.0,5,0
+151166,D. Karlsbakk,Daniel,Seland Karlsbakk,22.0,Norway,333,Sarpsborg 08 FF,Midtbane,Kant,28,28,2360,7.1,18,1,57.0,38.0,372,20.0,73.8,8.0,3.0,4.0,250,90,40.0,16.0,33,49.0,4,0
+375606,M. Tønnessen,Mathias,Tønnessen,22.0,Norway,2143,KFUM Oslo,Defender,Stopper,29,28,2360,7.29,0,1,12.0,1.0,1958,11.0,89.4,70.0,15.0,43.0,297,194,6.0,2.0,15,26.0,6,0
+38772,L. Mares,Luc Katja Anne,Mares,29.0,Netherlands,2159,Ham-Kam,Defender,Stopper,26,26,2340,7.17,2,1,6.0,4.0,1285,10.0,87.4,64.0,26.0,33.0,184,118,13.0,9.0,14,21.0,4,0
+265448,M. Farji,Marko Hussein,Farji,21.0,Norway,324,Stromsgodset,Midtbane,Kant,29,27,2336,7.04,9,4,46.0,24.0,652,36.0,73.0,14.0,2.0,8.0,262,111,112.0,51.0,33,30.0,6,0
+269583,A. Ekeroth,Anton Noah Christian,Ekeroth,24.0,Sweden,2159,Ham-Kam,Defender,Back,29,27,2333,7.01,2,6,12.0,6.0,621,36.0,70.8,43.0,8.0,23.0,267,136,65.0,29.0,49,29.0,8,0
+15910,N. Strunck,Nicklas,Strunck Jakobsen,26.0,Denmark,2142,Bryne,Midfielder,Sentral midt,28,28,2324,6.93,2,1,25.0,14.0,1031,19.0,83.6,32.0,9.0,24.0,153,78,7.0,2.0,27,23.0,5,0
+138732,F. Dahl,Fredrik,Kristensen Dahl,26.0,Norway,324,Stromsgodset,Defender,Back,29,28,2323,6.98,2,3,7.0,4.0,1298,20.0,89.6,62.0,18.0,41.0,209,131,18.0,11.0,20,20.0,1,0
+138736,A. Kiil Olsen,Aaron,Kiil Olsen,24.0,Norway,326,Valerenga,Defender,Stopper,28,26,2287,6.98,2,0,12.0,5.0,1464,4.0,87.3,22.0,22.0,22.0,154,97,9.0,6.0,22,13.0,2,0
+1189,E. Ceïde,Emil,Konradsen Ceïde,24.0,Norway,331,Rosenborg,Attacker,Kant,28,26,2284,7.23,5,8,32.0,22.0,791,54.0,75.9,14.0,2.0,2.0,238,98,90.0,43.0,34,16.0,4,0
+413662,Z. Smajlović,Zinedin,Smajlović,22.0,Bosnia and Herzegovina,332,Sandefjord,Forsvar,Stopper,26,25,2274,7.23,2,1,20.0,6.0,1794,12.0,84.2,34.0,20.0,32.0,224,135,32.0,21.0,21,20.0,7,0
+39201,A. Scriven,Alfred Richard,Scriven,27.0,Kenya,2142,Bryne,Midfielder,Spiss,31,27,2265,6.89,3,4,31.0,15.0,833,28.0,68.3,62.0,6.0,25.0,663,291,109.0,42.0,70,70.0,7,0
+127385,S. Hestnes,Simen,Hestnes,29.0,Norway,2143,KFUM Oslo,Midfielder,Sentral midt,26,26,2261,7.05,4,3,18.0,13.0,1182,32.0,81.9,46.0,5.0,27.0,186,80,16.0,7.0,20,40.0,2,1
+16194,C. Lange,Carl,Lange,27.0,Denmark,326,Valerenga,Midfielder,Sentral midt,27,27,2261,6.97,1,2,21.0,7.0,1030,28.0,83.5,40.0,5.0,28.0,238,115,46.0,24.0,33,35.0,4,0
+94819,E. Ødegaard,Emil,Gundelach Ødegaard,26.0,Norway,2143,KFUM Oslo,Goalkeeper,Goalkeeper,29,29,2258,6.72,0,0,,,954,2.0,61.3,2.0,,,16,15,1.0,1.0,6,,0,0
+39073,J. Hauge,Jens Petter,Hauge,26.0,Norway,327,Bodo/Glimt,Attacker,Kant,28,27,2230,7.64,8,4,30.0,15.0,1614,58.0,84.2,35.0,2.0,3.0,226,117,103.0,48.0,27,10.0,3,0
+313999,L. Sødal,Lars Erik,Sødal,23.0,Norway,2142,Bryne,Midfielder,Sentral midt,27,26,2224,6.79,0,0,12.0,4.0,994,16.0,80.3,62.0,7.0,22.0,241,130,16.0,4.0,23,45.0,7,0
+48034,P. Kristian Bråtveit,Per Kristian,Worre Bråtveit,29.0,Norway,324,Stromsgodset,Goalkeeper,Goalkeeper,25,25,2219,7.13,0,0,,,935,,62.1,,,,15,15,,,2,,1,0
+39064,P. Berg,Patrick,Berg,28.0,Norway,327,Bodo/Glimt,Midfielder,Sentral midt,28,25,2211,7.89,5,12,37.0,15.0,1546,76.0,87.7,63.0,6.0,26.0,161,90,22.0,12.0,10,25.0,2,0
+39065,H. Evjen,Håkon,Evjen,25.0,Norway,327,Bodo/Glimt,Midfielder,Sentral midt,29,27,2190,7.33,4,4,17.0,8.0,843,42.0,82.1,67.0,2.0,13.0,207,125,54.0,32.0,20,5.0,3,0
+39083,O. Bjørtuft,Odin,Lurås Bjørtuft,27.0,Norway,327,Bodo/Glimt,Defender,Stopper,28,25,2183,7.59,6,2,22.0,14.0,2525,13.0,94.5,22.0,10.0,14.0,174,104,4.0,4.0,13,20.0,2,0
+406483,D. Tufekcic,David,Tufekcic,21.0,Norway,320,Kristiansund BK,Midfielder,Kant,29,26,2169,6.74,4,3,21.0,9.0,577,36.0,79.0,32.0,1.0,10.0,251,108,68.0,19.0,40,28.0,6,0
+404175,Vinícius Nogueira,Vinícius,Nogueira de Oliveira,24.0,Brazil,326,Valerenga,Defender,Back,25,24,2168,7.13,2,3,13.0,7.0,899,34.0,79.7,50.0,11.0,23.0,260,140,49.0,24.0,43,42.0,5,0
+2119,E. Patoulidis,Evangelos,Patoulidis,24.0,Belgium,332,Sandefjord,Midfielder,Kant,29,26,2162,7.13,5,5,36.0,21.0,673,36.0,83.1,41.0,,13.0,252,109,60.0,26.0,31,42.0,5,0
+151240,J. Taaje,Jesper,Taaje,28.0,Norway,324,Stromsgodset,Defender,Stopper,26,25,2158,7.08,4,0,17.0,6.0,1351,3.0,89.7,29.0,22.0,39.0,199,125,6.0,4.0,7,11.0,5,0
+48111,D. Islamović,Dino,Islamović,31.0,Montenegro,331,Rosenborg,Attacker,Spiss,27,24,2153,7.26,14,3,61.0,33.0,384,20.0,70.2,15.0,6.0,14.0,291,136,18.0,7.0,44,41.0,3,0
+266127,M. Olsen,Marius,Berntsen Olsen,24.0,Norway,320,Kristiansund BK,Defender,Stopper,27,26,2145,6.71,1,0,5.0,3.0,1568,6.0,89.3,32.0,13.0,22.0,139,85,9.0,6.0,14,13.0,3,2
+425317,O. Øhlenschlæger,Oskar,Øhlenschlæger,21.0,Denmark,2149,Fredrikstad,Midtbane,Sentral midt,28,25,2136,7.21,6,3,24.0,12.0,563,20.0,76.4,90.0,7.0,22.0,386,191,45.0,11.0,56,55.0,8,0
+411649,F. Ardraa,Fredrik Pau,Vilaseca Ardraa,19.0,Norway,324,Stromsgodset,Attacker,Sentral midt,29,22,2130,6.87,2,3,26.0,9.0,750,23.0,85.7,44.0,3.0,18.0,215,107,37.0,20.0,28,30.0,5,0
+303108,F. Ambina,Fidèle Brice,Ambina,24.0,Cameroon,326,Valerenga,Midfielder,Sentral midt,26,26,2126,7.12,4,4,22.0,9.0,990,23.0,80.6,56.0,9.0,32.0,300,159,25.0,14.0,56,61.0,6,1
+266179,F. Pedersen,Fredrik Carson,Pedersen,23.0,Norway,332,Sandefjord,Defender,Back,26,23,2121,6.92,1,2,8.0,4.0,995,20.0,85.3,56.0,6.0,15.0,186,96,15.0,7.0,13,24.0,1,0
+47663,G. Granath,Gustav Frans Vallentin,Granath,28.0,Sweden,2159,Ham-Kam,Defender,Stopper,27,23,2112,6.86,1,2,8.0,4.0,1045,7.0,81.7,24.0,18.0,19.0,187,104,20.0,16.0,5,17.0,1,1
+15622,P. Christiansen,Peter,Buch Christiansen,26.0,Denmark,759,Viking,Attacker,Spiss,29,25,2107,7.21,14,2,54.0,30.0,282,17.0,64.4,21.0,1.0,10.0,222,72,30.0,8.0,31,40.0,1,0
+405117,J. Hjorth,Jonas,Lange Hjorth,24.0,Norway,2143,KFUM Oslo,Defender,Back,27,25,2104,6.96,2,4,17.0,7.0,747,26.0,76.7,44.0,1.0,10.0,169,85,29.0,17.0,11,21.0,3,0
+264384,M. Ceïde,Mikkel,Konradsen Ceïde,24.0,Norway,331,Rosenborg,Defender,Stopper,25,24,2100,6.78,0,0,,,1505,2.0,92.6,27.0,10.0,13.0,135,67,2.0,1.0,10,17.0,5,1
+57296,V. Erlien,Vegard,Østraat Erlien,27.0,Norway,325,Tromso,Attacker,Kant,28,24,2097,7.14,9,4,53.0,24.0,483,19.0,76.0,22.0,1.0,10.0,194,71,53.0,17.0,18,25.0,1,0
+356678,S. Sandal,Sverre,Hakami Sandal,22.0,Norway,2143,KFUM Oslo,Midtbane,Sentral midt,26,25,2095,7.04,3,3,15.0,7.0,1404,22.0,84.2,80.0,10.0,24.0,282,163,21.0,12.0,26,40.0,9,1
+39066,F. Myhre,Felix,Horn Myhre,26.0,Norway,319,Brann,Midfielder,Sentral midt,24,23,2088,7.2,4,3,15.0,9.0,1007,34.0,83.8,36.0,4.0,14.0,214,109,63.0,30.0,29,22.0,4,0
+197625,E. Guðmundsson,Eggert Aron,Guðmundsson,21.0,Iceland,319,Brann,Midfielder,Sentral midt,28,24,2087,7.14,5,5,19.0,13.0,918,29.0,76.8,49.0,4.0,15.0,252,121,59.0,28.0,38,21.0,1,0
+39333,L. Vilsvik,Lars-Christopher Horst Jan,Vilsvik,37.0,Norway,324,Stromsgodset,Defender,Stopper,28,26,2073,6.91,2,3,9.0,4.0,1019,26.0,83.6,34.0,1.0,19.0,120,75,14.0,10.0,14,14.0,2,0
+416083,S. Kilen,Sander,Hestetun Kilen,20.0,Norway,320,Kristiansund BK,Midtbane,Kant,0,0,2071,6.75,5,3,31.0,21.0,543,27.0,73.2,14.0,4.0,11.0,278,95,87.0,34.0,28,30.0,3,0
+94983,D. Eid,Daniel Fritz,Eid,27.0,Norway,2149,Fredrikstad,Defender,Back,28,25,2066,7.1,1,3,15.0,8.0,642,23.0,66.4,40.0,18.0,21.0,199,105,12.0,1.0,16,21.0,5,0
+310131,M. Rakneberg,Mikkel,Rakneberg,23.0,Norway,320,Kristiansund BK,Forsvar,Back,26,25,2064,6.89,0,2,10.0,3.0,1074,33.0,80.9,33.0,3.0,15.0,145,87,24.0,15.0,27,9.0,1,0
+57267,P. Bizoza,Parfait,Bizoza,26.0,Burundi,328,Haugesund,Midfielder,Sentral midt,29,25,2054,6.57,0,1,11.0,5.0,909,9.0,84.1,30.0,7.0,12.0,224,102,26.0,15.0,31,40.0,3,0
+437930,M. Dia,Madiodio,Dia,21.0,Senegal,328,Haugesund,Defender,Stopper,23,23,2048,7.07,1,0,12.0,5.0,1148,4.0,82.3,42.0,33.0,35.0,190,132,11.0,5.0,31,26.0,5,0
+198962,D. Edvardsson,David Mikael,Edvardsson,23.0,Sweden,325,Tromso,Midfielder,Sentral midt,27,23,2047,7.1,3,2,17.0,10.0,1184,23.0,83.6,56.0,7.0,11.0,188,100,18.0,10.0,24,39.0,8,0
+432675,W. Igor,Wilfred George,Igor,20.0,Nigeria,320,Kristiansund BK,Midfielder,Sentral midt,24,24,2037,6.74,1,1,8.0,3.0,805,7.0,82.9,53.0,10.0,27.0,211,108,23.0,13.0,14,32.0,6,0
+133602,S. Sigurðarson,Stefán Ingi,Sigurðarson,24.0,Iceland,332,Sandefjord,Attacker,Spiss,27,25,2037,7.17,15,1,41.0,30.0,297,22.0,66.1,9.0,11.0,4.0,264,126,16.0,7.0,39,22.0,3,1
+57247,E. Wichne,Eirik,Wichne,28.0,Norway,333,Sarpsborg 08 FF,Defender,Back,28,24,2033,7.0,0,3,11.0,4.0,985,52.0,83.5,46.0,5.0,13.0,200,110,24.0,16.0,34,22.0,4,0
+57352,D. Hickson,David,Hickson Gyedu,28.0,Norway,2143,KFUM Oslo,Defender,Kant,27,26,2026,6.84,5,1,17.0,10.0,527,16.0,75.7,32.0,1.0,7.0,202,95,62.0,28.0,22,22.0,3,0
+314341,H. Skogvold,Henrik,Langaas Skogvold,21.0,Norway,2149,Fredrikstad,Attacker,Spiss,30,24,1993,6.8,5,1,33.0,20.0,337,16.0,70.8,16.0,1.0,6.0,173,64,45.0,12.0,19,20.0,2,0
+15704,K. Høgh,Kasper,Waarts Thenza Høgh,25.0,Denmark,327,Bodo/Glimt,Attacker,Spiss,28,26,1989,7.29,17,5,65.0,35.0,336,18.0,75.4,13.0,,3.0,182,81,18.0,7.0,16,30.0,0,0
+55586,J. Dunsby,Jakob,Maslø Dunsby,25.0,Norway,332,Sandefjord,Midfielder,Kant,27,25,1989,7.11,5,5,31.0,15.0,585,29.0,81.1,40.0,2.0,12.0,296,158,79.0,33.0,66,36.0,3,0
+327759,N. Ødegård,Niklas,Ødegård,21.0,Norway,320,Kristiansund BK,Midtbane,Sentral midtbane,29,21,1985,6.9,2,3,18.0,8.0,572,19.0,74.0,48.0,11.0,38.0,231,121,37.0,16.0,34,27.0,2,0
+203157,S. Christiansen,Sander Johan,Christiansen,24.0,Norway,333,Sarpsborg 08 FF,Defender,Sentral midt,27,22,1978,6.93,1,0,13.0,6.0,999,16.0,86.9,43.0,8.0,25.0,175,94,24.0,11.0,26,24.0,3,0
+340719,M. Fischer,Mikkel,Rosleff Fischer,21.0,Denmark,328,Haugesund,Forsvar,Stopper,0,0,1976,6.81,0,0,7.0,5.0,1091,2.0,77.9,21.0,30.0,36.0,110,66,2.0,2.0,13,10.0,3,0
+205137,T. Nemčík,Tomáš,Nemčík,24.0,Slovakia,331,Rosenborg,Defender,Stopper,23,22,1967,7.08,1,1,2.0,1.0,1810,6.0,91.4,37.0,17.0,21.0,179,94,9.0,3.0,24,32.0,1,0
+202850,I. Hoffmann,Ian Jakob,Hoffmann,24.0,USA,320,Kristiansund BK,Defender,Back,25,23,1967,6.94,0,2,6.0,2.0,988,29.0,85.5,36.0,10.0,15.0,153,83,23.0,13.0,23,18.0,6,0
+263977,C. Cheng,Christopher,Cheng,24.0,Norway,332,Sandefjord,Defender,Back,27,21,1960,7.0,5,5,23.0,9.0,825,23.0,86.7,38.0,4.0,18.0,210,105,61.0,28.0,35,20.0,3,0
+313648,A. Sæther,Adrian,Sæther,24.0,Norway,320,Kristiansund BK,Goalkeeper,Goalkeeper,22,22,1955,6.75,0,0,,,676,2.0,51.0,1.0,,,9,6,1.0,1.0,1,1.0,1,0
+103232,P. Metcalfe,Patrick Robert,Metcalfe,27.0,Canada,2149,Fredrikstad,Midfielder,Sentral midt,26,22,1949,6.97,1,0,10.0,4.0,725,31.0,80.7,24.0,4.0,8.0,153,69,24.0,7.0,20,13.0,1,0
+39145,Z. Tripić,Zlatko,Tripić,33.0,Norway,759,Viking,Midfielder,Kant,25,22,1937,7.95,11,16,41.0,22.0,952,93.0,73.4,28.0,4.0,5.0,188,99,37.0,11.0,49,24.0,5,0
+57230,T. Sørås,Tore André,Hagbø Sørås,27.0,Norway,2159,Ham-Kam,Midfielder,Sentral midt,27,21,1916,6.82,1,1,5.0,1.0,929,16.0,84.5,52.0,5.0,34.0,203,113,22.0,12.0,13,33.0,3,0
+264710,H. Heggheim,Henrik,Heggheim,24.0,Norway,759,Viking,Defender,Stopper,29,21,1915,7.03,2,3,19.0,9.0,752,14.0,77.1,52.0,11.0,30.0,226,119,14.0,4.0,19,43.0,7,0
+24941,M. Møller Dæhli,Mats,Møller Dæhli,30.0,Norway,329,Molde,Midfielder,Sentral midt,24,22,1901,7.23,0,2,4.0,1.0,1458,23.0,91.0,57.0,3.0,28.0,146,90,14.0,8.0,19,11.0,0,0
+107852,S. Molde,Stian,Stray Molde,29.0,Norway,2149,Fredrikstad,Defender,Back,25,21,1860,6.83,2,0,14.0,6.0,629,12.0,72.9,28.0,6.0,20.0,121,62,8.0,4.0,2,16.0,0,0
+368793,E. Austbö,Edvin,Austbö,20.0,Norway,759,Viking,Midtbane,Kant,27,26,1849,7.2,6,5,35.0,20.0,700,39.0,81.8,18.0,1.0,6.0,158,81,74.0,41.0,20,12.0,2,0
+12880,O. Selnæs,Ole Kristian,Selnæs,31.0,Norway,331,Rosenborg,Midfielder,Sentral midt,24,20,1833,7.33,0,2,8.0,,1421,31.0,86.9,43.0,13.0,25.0,191,123,14.0,9.0,24,27.0,6,0
+39046,F. Sjølstad,Fredrik,Vangstad Sjølstad,31.0,Norway,2159,Ham-Kam,Defender,Stopper,25,23,1832,6.88,0,0,5.0,1.0,1162,7.0,89.4,15.0,21.0,23.0,105,55,3.0,,7,13.0,4,0
+8626,H. Bjørdal,Henrik Rørvik,Bjørdal,28.0,Norway,326,Valerenga,Midfielder,Sentral midt,23,20,1829,7.28,4,6,23.0,9.0,700,45.0,74.1,31.0,3.0,16.0,228,117,34.0,14.0,36,31.0,3,2
+107412,E. Hadaya,Elias,Hadaya,27.0,Sweden,332,Sandefjord,Goalkeeper,Goalkeeper,20,20,1799,7.04,0,0,,,679,1.0,74.6,2.0,,,15,12,,,3,2.0,2,0
+133246,E. Sørensen,Elias Fritjof,Grænge Sørensen,26.0,Denmark,326,Valerenga,Midfielder,Kant,28,22,1778,7.1,12,3,33.0,18.0,516,29.0,73.9,18.0,2.0,18.0,159,74,29.0,14.0,17,14.0,3,0
+57445,J. Soltvedt,Joachim,Soltvedt,30.0,Norway,319,Brann,Defender,Back,24,20,1764,7.27,2,9,18.0,10.0,1158,53.0,79.8,18.0,3.0,9.0,117,54,13.0,6.0,14,18.0,3,0
+39265,S. Sørløkk,Sondre,Sørløkk,28.0,Norway,2149,Fredrikstad,Midfielder,Kant,29,18,1738,6.92,5,4,35.0,18.0,364,21.0,64.6,22.0,8.0,8.0,268,127,39.0,14.0,26,17.0,0,0
+39134,A. Pereira,Adrian Nilsen,Pereira,26.0,Norway,331,Rosenborg,Defender,Back,23,19,1713,7.11,1,1,17.0,9.0,942,22.0,79.3,37.0,4.0,20.0,221,118,74.0,31.0,37,27.0,5,0
+151400,J. Husebø,Jens,Berland Husebø,26.0,Norway,2142,Bryne,Defender,Stopper,20,20,1713,6.91,0,0,5.0,1.0,804,6.0,83.1,17.0,15.0,26.0,127,78,6.0,4.0,6,15.0,2,0
+57236,M. Mawa,Moses,Dramwi Mawa,29.0,Norway,2159,Ham-Kam,Attacker,Spiss,26,20,1685,6.78,4,0,36.0,14.0,187,16.0,72.1,7.0,,2.0,121,37,27.0,9.0,15,27.0,3,0
+57336,A. Aleesami,Ayoub,Aleesami,29.0,Norway,2143,KFUM Oslo,Defender,Stopper,24,20,1669,6.85,1,1,4.0,2.0,1027,5.0,86.9,32.0,5.0,20.0,146,85,9.0,3.0,15,20.0,3,0
+392187,M. Ubandoma,Mustapha,Isah Ubandoma,21.0,Nigeria,320,Kristiansund BK,Midfielder,Spiss,29,20,1659,6.8,6,2,27.0,15.0,261,16.0,75.5,19.0,1.0,5.0,172,60,60.0,20.0,15,24.0,2,0
+318422,L. Qvigstad,Lasse,Qvigstad,22.0,Norway,2142,Bryne,Defender,Back,23,20,1650,6.77,2,0,8.0,2.0,623,12.0,76.5,54.0,5.0,12.0,170,90,19.0,10.0,11,23.0,1,0
+513019,A. Kinteh,Abubacarr Sedi,Kinteh,19.0,Gambia,325,Tromso,Defender,Stopper,21,19,1648,7.04,1,1,7.0,3.0,1286,7.0,87.0,23.0,6.0,18.0,174,93,22.0,14.0,25,33.0,8,1
+334630,H. Larsen,Heine,Åsen Larsen,23.0,Norway,2142,Bryne,Midtbane,Spiss,22,18,1643,6.9,4,1,27.0,14.0,584,23.0,72.5,28.0,,13.0,238,96,25.0,7.0,14,19.0,4,0
+39049,M. Eikrem,Magnus,Wolff Eikrem,35.0,Norway,329,Molde,Attacker,Sentral midt,27,18,1628,7.26,3,4,28.0,14.0,857,53.0,79.9,15.0,3.0,2.0,67,38,13.0,7.0,7,3.0,1,0
+48129,A. Sher,Aimar Hazar,Sher,23.0,Sweden,333,Sarpsborg 08 FF,Midtbane,Sentral midt,19,18,1612,7.14,0,1,7.0,1.0,953,9.0,88.8,29.0,8.0,31.0,152,84,18.0,10.0,37,23.0,0,0
+25378,I. Fossum,Iver Tobias,Rørvik Fossum,29.0,Norway,331,Rosenborg,Midfielder,Sentral midt,22,19,1607,6.96,2,3,16.0,7.0,792,18.0,86.3,29.0,2.0,11.0,116,55,12.0,3.0,11,6.0,0,0
+39069,U. Saltnes,Ulrik,Saltnes,33.0,Norway,327,Bodo/Glimt,Midfielder,Sentral midt,23,19,1602,7.32,7,5,31.0,17.0,507,19.0,78.3,22.0,8.0,8.0,126,60,27.0,13.0,12,12.0,1,0
+60371,R. Shein,Rocco Robert,Shein,22.0,Estonia,2149,Fredrikstad,Midfielder,Sentral midt,28,17,1595,6.98,1,4,21.0,13.0,962,23.0,85.5,49.0,3.0,21.0,228,108,47.0,20.0,19,28.0,4,0
+55410,S. Väänänen,Santeri Leevi Oliver,Väänänen,23.0,Finland,331,Rosenborg,Midtbane,Sentral midt,22,18,1583,6.84,1,0,8.0,2.0,642,6.0,86.2,47.0,5.0,26.0,163,73,17.0,4.0,13,27.0,4,0
+39122,B. Finne,Bård,Finne,30.0,Norway,319,Brann,Attacker,Spiss,26,19,1571,7.0,6,3,39.0,23.0,294,26.0,66.4,15.0,,1.0,103,34,21.0,7.0,7,10.0,0,0
+39285,K. Askildsen,Kristoffer,Askildsen,24.0,Norway,759,Viking,Midfielder,Sentral midt,27,18,1555,6.95,3,4,21.0,8.0,633,13.0,76.7,31.0,8.0,18.0,173,93,15.0,2.0,23,25.0,2,0
+273390,S. Diarra,Sory Ibrahim,Diarra,25.0,Mali,328,Haugesund,Attacker,Spiss,21,17,1555,6.95,7,1,23.0,15.0,217,17.0,86.4,12.0,1.0,3.0,202,85,15.0,8.0,21,23.0,1,0
+457199,J. Hansen,Jakob,Segadal Hansen,20.0,Norway,759,Viking,Midtbane,Sentral midt,25,20,1554,6.66,2,1,14.0,6.0,427,12.0,78.1,31.0,3.0,7.0,162,68,21.0,8.0,11,20.0,3,0
+409869,Ieltsin Camões,Ieltsin Jerónimo,Semedo Camões,26.0,Portugal,325,Tromso,Attacker,Spiss,25,19,1544,7.25,13,4,42.0,18.0,311,20.0,73.4,16.0,,6.0,193,80,36.0,20.0,16,26.0,3,0
+1171,V. Hedenstad,Vegar,Eggen Hedenstad,34.0,Norway,326,Valerenga,Defender,Back,22,19,1538,6.72,0,3,5.0,3.0,840,12.0,86.8,32.0,2.0,16.0,136,70,19.0,15.0,14,23.0,1,0
+39239,T. Pedersen,Thore,Baardsen Pedersen,29.0,Norway,319,Brann,Defender,Back,25,20,1536,6.92,0,2,3.0,1.0,1177,12.0,88.7,42.0,9.0,19.0,179,95,23.0,9.0,19,21.0,4,0
+158532,J. Fischer,Jonathan,Frost Fischer,24.0,Denmark,2149,Fredrikstad,Goalkeeper,Goalkeeper,17,17,1530,6.91,0,0,,,536,,53.2,2.0,,,8,8,,,3,,0,0
+318188,S. Bojadzic,Sanel,Bojadzic,27.0,Norway,2142,Bryne,Attacker,Spiss,26,16,1527,6.79,6,3,28.0,17.0,418,11.0,70.1,20.0,3.0,8.0,276,99,60.0,20.0,26,42.0,4,0
+15904,U. Yttergård Jenssen,Ulrik,Yttergård Jenssen,29.0,Norway,331,Rosenborg,Defender,Stopper,25,18,1523,6.93,2,2,8.0,6.0,1070,21.0,83.1,20.0,3.0,18.0,93,39,4.0,1.0,3,13.0,8,0
+430078,S. Kabini,Samukelo,Kabini,21.0,South Africa,329,Molde,Forsvar,Back,18,16,1505,7.33,0,3,12.0,7.0,687,14.0,86.4,58.0,11.0,17.0,193,106,30.0,12.0,16,21.0,8,0
+39217,P. Strand,Petter,Dahle Strand,31.0,Norway,326,Valerenga,Midfielder,Sentral midt,28,15,1485,6.87,5,1,22.0,9.0,494,21.0,81.2,31.0,1.0,9.0,170,78,29.0,12.0,20,13.0,3,0
+57276,S. Nilsen,Snorre,Strand Nilsen,25.0,Norway,2159,Ham-Kam,Defender,Back,21,17,1477,6.88,1,3,7.0,3.0,507,18.0,75.9,23.0,3.0,13.0,163,88,8.0,2.0,15,17.0,3,0
+57279,G. Simenstad,Gard,Simenstad,26.0,Norway,2159,Ham-Kam,Midfielder,Sentral midt,26,16,1476,6.81,3,1,24.0,12.0,425,14.0,70.4,30.0,4.0,14.0,140,67,20.0,6.0,21,23.0,3,0
+16066,R. Çorlu,Rezan,Çorlu,28.0,Denmark,320,Kristiansund BK,Midfielder,Sentral midt,26,19,1470,6.7,4,1,18.0,6.0,621,12.0,79.1,18.0,1.0,12.0,128,53,46.0,18.0,11,14.0,3,0
+39044,E. Hestad,Eirik,Hestad,30.0,Norway,329,Molde,Midfielder,Sentral midt,24,20,1469,7.13,3,4,22.0,10.0,675,20.0,86.8,29.0,6.0,11.0,130,71,27.0,13.0,26,9.0,1,0
+337496,V. Halvorsen,Victor Emanuel,Halvorsen,21.0,Norway,333,Sarpsborg 08 FF,Midtbane,Sentral midt,0,0,1451,6.85,1,0,12.0,4.0,688,19.0,86.0,29.0,14.0,10.0,139,59,28.0,10.0,8,9.0,0,0
+57436,M. Roseth,Martin Ove,Roseth,27.0,Norway,759,Viking,Defender,Stopper,20,18,1447,7.14,4,0,12.0,5.0,989,6.0,86.6,19.0,8.0,24.0,159,108,2.0,1.0,14,20.0,4,0
+335958,L. Mettler,Loris,Mettler,27.0,Switzerland,332,Sandefjord,Midfielder,Sentral midt,27,15,1443,7.0,3,1,37.0,13.0,782,23.0,86.6,29.0,6.0,10.0,139,55,15.0,4.0,10,24.0,5,0
+64339,J. Sery Larsen,Japhet,Sery Larsen,25.0,Denmark,319,Brann,Defender,Back,20,16,1440,6.93,1,0,6.0,3.0,1050,4.0,91.1,11.0,9.0,8.0,102,56,3.0,2.0,13,20.0,3,1
+39128,A. Wichne,Amund,Wichne,28.0,Norway,328,Haugesund,Goalkeeper,Goalkeeper,16,16,1440,6.85,0,0,,,596,1.0,60.6,,,,13,11,,,1,1.0,0,0
+319388,F. Tebo Uchenna,Franklin Degaulle,Tebo Uchenna,25.0,Nigeria,333,Sarpsborg 08 FF,Defender,Stopper,16,16,1439,7.39,1,0,7.0,4.0,1033,6.0,89.1,15.0,14.0,18.0,122,78,5.0,3.0,15,14.0,2,0
+304373,D. De Roeve,Denzel,De Roeve,21.0,Belgium,319,Brann,Forsvar,Back,28,12,1433,6.99,3,2,10.0,6.0,920,14.0,81.0,55.0,5.0,23.0,171,86,34.0,14.0,12,10.0,2,0
+57177,S. Mørk,Sander,Risan Mørk,25.0,Norway,332,Sandefjord,Midfielder,Sentral midt,18,16,1432,6.86,2,2,12.0,7.0,581,11.0,78.5,20.0,8.0,17.0,86,36,9.0,3.0,10,15.0,4,0
+57292,A. Kryger,Axel,Kryger,28.0,Norway,2142,Bryne,Defender,Back,17,17,1425,7.18,2,0,6.0,3.0,815,20.0,75.0,27.0,11.0,18.0,107,59,6.0,2.0,6,13.0,4,0
+98842,U. Mathisen,Ulrik,Mathisen,26.0,Norway,319,Brann,Midfielder,Kant,26,17,1417,6.97,2,4,21.0,12.0,434,18.0,75.6,14.0,1.0,7.0,191,94,42.0,13.0,39,12.0,1,0
+386292,E. Schlichting,Emil,Rohd Schlichting,21.0,Denmark,328,Haugesund,Midfielder,Kant,25,15,1409,6.61,2,0,16.0,9.0,323,10.0,77.3,12.0,3.0,11.0,170,71,46.0,20.0,29,18.0,2,0
+2022,S. Jarl,Sebastian,Jarl,25.0,Norway,326,Valerenga,Defender,Stopper,20,14,1392,6.89,0,0,3.0,1.0,803,6.0,87.2,20.0,9.0,21.0,91,54,6.0,4.0,16,11.0,0,0
+438,M. Linnes,Martin,Linnes,34.0,Norway,329,Molde,Defender,Back,19,16,1391,7.12,0,3,6.0,2.0,892,28.0,85.3,30.0,6.0,9.0,110,62,27.0,12.0,13,12.0,2,0
+228885,C. Niyukuri,Claus,Babo Niyukuri,25.0,Norway,328,Haugesund,Defender,Back,23,16,1362,6.87,2,2,12.0,4.0,519,10.0,78.9,29.0,6.0,17.0,160,101,24.0,16.0,29,20.0,1,0
+394932,T. Nyhammer,Troy,Engseth Nyhammer,19.0,Norway,328,Haugesund,Midtbane,Kant,0,0,1361,6.62,1,1,13.0,6.0,484,16.0,71.9,17.0,1.0,17.0,118,52,28.0,12.0,19,15.0,3,0
+208818,H. Hoseth,Håkon,Helland Hoseth,26.0,Norway,2143,KFUM Oslo,Midfielder,Sentral midt,18,17,1351,7.08,1,3,12.0,4.0,444,21.0,85.1,39.0,3.0,13.0,124,70,22.0,8.0,10,8.0,1,0
+39142,H. Tangen,Harald,Nilsen Tangen,24.0,Norway,333,Sarpsborg 08 FF,Midfielder,Sentral midt,21,16,1346,7.01,2,1,14.0,6.0,523,20.0,82.3,23.0,6.0,6.0,132,67,23.0,12.0,25,14.0,1,0
+47713,Mohanad Jeahze,Mohanad Abdulkadhim Qasim,Al Jebur Jeahze,28.0,Iraq,333,Sarpsborg 08 FF,Defender,Back,19,17,1336,7.04,0,1,13.0,4.0,745,16.0,83.4,41.0,4.0,15.0,111,66,8.0,3.0,14,16.0,2,0
+39101,S. Svendsen,Sander,Svendsen,28.0,Norway,759,Viking,Forward,Kant,30,22,1335,6.7875,2,3,23.0,8.0,303,14.0,77.5,10.0,,2.0,86,42,13.0,6.0,18,10.0,0,0
+278551,R. Norheim,Runar,Robinsønn Norheim,20.0,Norway,325,Tromso,Defender,Back,19,17,1324,7.07,2,3,17.0,9.0,536,21.0,82.2,15.0,1.0,14.0,126,60,42.0,22.0,5,14.0,0,0
+57170,V. Jónsson,Viðar Ari,Jónsson,31.0,Iceland,2159,Ham-Kam,Defender,Kant,25,14,1320,6.88,3,3,12.0,6.0,422,28.0,78.9,30.0,3.0,10.0,121,61,20.0,9.0,17,9.0,1,0
+169190,K. Krasniqi,Kreshnik,Krasniqi,25.0,Kosovo,324,Stromsgodset,Midfielder,Sentral midt,21,13,1317,6.79,2,0,15.0,5.0,586,9.0,84.3,25.0,11.0,17.0,148,68,30.0,12.0,18,21.0,2,0
+39241,Bruno Leite,Bruno Miguel,Santos Leite,30.0,Cape Verde,328,Haugesund,Midfielder,Sentral midt,21,16,1315,6.7,0,1,15.0,4.0,566,4.0,83.3,43.0,11.0,19.0,192,101,42.0,16.0,35,23.0,6,1
+388327,F. Thorvaldsen,Filip Erik,Thorvaldsen,19.0,Norway,326,Valerenga,Attacker,Kant,21,15,1311,6.82,5,2,28.0,15.0,312,24.0,84.1,18.0,1.0,3.0,131,58,60.0,20.0,20,4.0,2,0
+336648,A. Roaldsøy,Alwande Benedict,Roaldsøy,21.0,Norway,2159,Ham-Kam,Midtbane,Sentral midt,19,15,1310,6.85,4,2,9.0,5.0,553,7.0,86.9,19.0,4.0,16.0,143,60,23.0,10.0,17,27.0,3,0
+39067,M. Konradsen,Morten,Ågnes Konradsen,29.0,Norway,328,Haugesund,Midfielder,Sentral midt,16,15,1302,6.64,0,0,7.0,2.0,511,17.0,81.8,19.0,1.0,12.0,90,35,10.0,1.0,3,18.0,1,0
+269347,R. Alte,Ruben,Kristensen Alte,25.0,Norway,320,Kristiansund BK,Midfielder,Sentral midt,15,15,1294,7.21,3,2,23.0,11.0,421,21.0,78.5,9.0,3.0,5.0,102,47,37.0,19.0,19,13.0,3,0
+1099,F. Gulbrandsen,Fredrik Aasmundrud,Gulbrandsen,33.0,Norway,329,Molde,Attacker,Kant,24,16,1289,6.71,7,1,37.0,24.0,179,7.0,73.0,9.0,1.0,3.0,155,47,28.0,1.0,16,13.0,3,0
+382977,H. Sjåtil,Håkon,Sjåtil,23.0,Norway,326,Valerenga,Forsvar,Back,23,13,1262,6.53,0,0,3.0,1.0,485,5.0,82.8,44.0,6.0,9.0,124,64,18.0,9.0,9,26.0,3,0
+15922,O. Hedvall,Oscar Thore,Hedvall,27.0,Denmark,326,Valerenga,Goalkeeper,Goalkeeper,14,14,1260,6.84,0,0,,,527,,60.8,1.0,,,3,3,,,1,,3,0
+310130,A. Potur,Aksel,Baran Potur,23.0,Türkiye,2159,Ham-Kam,Midfielder,Sentral midt,25,13,1253,6.88,0,2,12.0,9.0,403,17.0,86.5,22.0,1.0,8.0,169,93,33.0,16.0,50,20.0,1,0
+352730,S. Ørjasæter,Sondre,Holmlund Ørjasæter,22.0,Norway,333,Sarpsborg 08 FF,Midfielder,Kant,14,14,1248,7.58,2,2,27.0,15.0,575,29.0,82.8,8.0,1.0,3.0,139,68,53.0,29.0,29,4.0,1,0
+39232,F. Knudsen,Fredrik,Pallesen Knudsen,29.0,Norway,319,Brann,Defender,Stopper,17,16,1244,7.12,0,0,5.0,,1146,2.0,92.6,19.0,7.0,10.0,114,77,4.0,3.0,8,11.0,3,0
+151137,E. Hagen,Elias,Kristoffersen Hagen,25.0,Norway,326,Valerenga,Midfielder,Sentral midt,30,10,1230,6.85,3,1,20.0,13.0,517,19.0,81.0,24.0,7.0,11.0,100,53,17.0,7.0,8,9.0,2,0
+39085,B. Risa,Birk,Risa,27.0,Norway,329,Molde,Defender,Back,15,15,1221,7.09,0,0,9.0,1.0,983,4.0,81.8,5.0,9.0,13.0,73,41,4.0,2.0,12,12.0,3,0
+39105,K. Klaesson,Kristoffer-August,Sundquist Klaesson,25.0,Norway,759,Viking,Goalkeeper,Goalkeeper,14,14,1219,6.61,0,0,,,432,,47.1,,,,8,8,,,4,,0,0
+16100,E. Holten,Emil,Frost Holten,29.0,Denmark,2149,Fredrikstad,Attacker,Spiss,18,15,1217,7.01,4,3,22.0,10.0,240,14.0,55.4,12.0,1.0,4.0,197,79,16.0,5.0,26,20.0,2,0
+39343,H. Stenevik,Halldor,Østervold Stenevik,25.0,Norway,329,Molde,Defender,Back,24,11,1196,6.87,2,1,5.0,3.0,629,12.0,85.7,31.0,2.0,11.0,117,66,22.0,12.0,19,13.0,5,0
+314340,V. Egeli,Vetle,Walle Egeli,21.0,Norway,332,Sandefjord,Forsvar,Back,25,12,1186,6.84,1,1,14.0,6.0,595,11.0,83.3,28.0,3.0,8.0,131,67,23.0,16.0,12,13.0,2,0
+318591,S. Kvia-Egeskog,Simen,Kvia-Egeskog,22.0,Norway,759,Viking,Midfielder,Kant,28,8,1177,6.8,5,2,11.0,7.0,335,18.0,84.5,19.0,7.0,4.0,139,53,29.0,8.0,21,15.0,2,0
+28775,B. Bjarnason,Brynjar Ingi,Bjarnason,26.0,Iceland,2159,Ham-Kam,Defender,Stopper,13,13,1165,7.25,0,1,13.0,4.0,497,6.0,76.4,24.0,12.0,13.0,114,81,4.0,3.0,4,5.0,1,0
+133916,A. Heggebø,Aune,Selland Heggebø,24.0,Norway,319,Brann,Attacker,Spiss,13,13,1162,7.29,7,1,30.0,17.0,233,6.0,70.2,11.0,,8.0,176,75,21.0,9.0,17,21.0,1,0
+57383,M. Mehnert,Marcus,Johansen Mehnert,28.0,Norway,324,Stromsgodset,Midfielder,Spiss,20,12,1155,6.64,1,2,9.0,2.0,225,14.0,68.9,9.0,,4.0,158,68,31.0,12.0,13,24.0,2,0
+162262,J. Bakke,Johan,Johanessen Bakke,21.0,Norway,324,Stromsgodset,Midfielder,Sentral midt,16,16,1151,6.69,2,1,13.0,7.0,210,5.0,77.5,13.0,5.0,16.0,94,38,15.0,4.0,17,13.0,4,0
+45834,Moussa Njie,Moussa,Jailani Gaucho Njie,30.0,Norway,2143,KFUM Oslo,Midfielder,Kant,20,15,1137,6.79,2,1,21.0,10.0,317,11.0,84.4,8.0,1.0,5.0,106,37,18.0,4.0,13,11.0,2,0
+395016,M. Hope,Mikkel,Kalvenes Hope,19.0,Norway,328,Haugesund,Defender,Back,21,11,1121,6.4,1,0,8.0,5.0,258,6.0,75.7,17.0,2.0,3.0,74,37,17.0,6.0,11,10.0,1,0
+161792,P. Hannola,Pyry Petteri,Hannola,24.0,Finland,328,Haugesund,Midfielder,Sentral midt,13,12,1112,6.97,0,2,6.0,4.0,700,17.0,92.2,10.0,4.0,6.0,68,32,8.0,3.0,17,10.0,1,0
+1968,J. Inge Berget,Jo Inge,Berget,35.0,Norway,333,Sarpsborg 08 FF,Attacker,Spiss,22,12,1103,6.86,5,1,23.0,15.0,375,16.0,72.1,9.0,2.0,2.0,117,46,23.0,9.0,11,23.0,3,0
+262598,S. Auklend,Sondre,Auklend,22.0,Norway,327,Bodo/Glimt,Midtbane,Sentral midt,22,13,1101,7.21,1,5,17.0,8.0,741,22.0,86.7,32.0,5.0,10.0,176,90,37.0,17.0,36,18.0,1,0
+39352,J. Gundersen,Jostein,Maurstad Gundersen,29.0,Norway,327,Bodo/Glimt,Defender,Stopper,16,13,1097,7.27,1,0,3.0,1.0,1298,4.0,93.3,22.0,2.0,15.0,134,88,3.0,1.0,13,18.0,0,1
+406480,M. Børsheim,Martin,Børsheim,20.0,Norway,2149,Fredrikstad,Forsvar,Stopper,12,12,1080,6.89,0,0,1.0,,426,,52.1,,,,12,11,1.0,1.0,4,1.0,2,0
+2017,B. Utvik,Bjørn Inge,Utvik,29.0,Norway,333,Sarpsborg 08 FF,Defender,Stopper,12,12,1080,7.27,0,0,4.0,1.0,670,6.0,90.9,15.0,17.0,4.0,81,51,1.0,1.0,4,5.0,1,0
+15857,J. Eskesen,Julius,Eskesen,26.0,Denmark,328,Haugesund,Midfielder,Sentral midt,13,12,1073,6.99,1,0,10.0,2.0,519,20.0,79.1,21.0,1.0,8.0,127,71,19.0,5.0,26,11.0,3,0
+39309,S. Rafn,Simen,Rafn,33.0,Norway,2149,Fredrikstad,Defender,Back,24,10,1056,6.7,0,0,3.0,2.0,458,4.0,77.4,23.0,2.0,14.0,102,59,19.0,8.0,14,10.0,0,0
+309619,A. Conteh,,,,,324,Stromsgodset,Attacker,Spiss,13,13,1056,6.87,2,1,30.0,14.0,202,7.0,59.0,5.0,1.0,1.0,187,83,10.0,5.0,15,20.0,0,0
+39062,E. Reitan,Erlend,Dahl Reitan,28.0,Norway,331,Rosenborg,Defender,Back,20,10,1053,6.72,0,1,3.0,1.0,409,7.0,82.2,17.0,3.0,11.0,90,49,6.0,2.0,17,8.0,2,0
+47905,O. Krusnell,Oscar,Krusnell,26.0,Sweden,328,Haugesund,Defender,Back,14,12,1047,6.64,0,0,3.0,2.0,628,10.0,77.7,17.0,5.0,17.0,81,38,11.0,4.0,9,12.0,1,1
+51028,N. Hämäläinen,Nicholas Antero,Hämäläinen,28.0,Finland,328,Haugesund,Defender,Back,13,12,1042,6.41,1,1,7.0,3.0,548,4.0,76.3,16.0,3.0,11.0,67,31,9.0,6.0,1,5.0,2,0
+8699,A. Nouri,Amin Mimoun,Nouri,35.0,Norway,2143,KFUM Oslo,Defender,Back,25,11,1040,6.6,1,2,5.0,2.0,342,12.0,75.1,23.0,,10.0,114,48,14.0,4.0,11,11.0,3,0
+16062,K. Tshiembe,Kevin N'goyi,Tshiembe,28.0,Denmark,326,Valerenga,Defender,Stopper,19,11,1038,6.87,0,0,5.0,,730,2.0,90.5,12.0,6.0,7.0,91,59,3.0,2.0,16,13.0,4,0
+57389,P. Reinhardsen,Peter,Reinhardsen,26.0,Norway,333,Sarpsborg 08 FF,Defender,Back,23,11,1036,6.8,2,1,13.0,9.0,470,13.0,78.1,17.0,4.0,12.0,101,43,18.0,4.0,7,18.0,3,0
+318233,J. Gonstad,Julian,Bakkeli Gonstad,19.0,Norway,2159,Ham-Kam,Attacker,Spiss,25,11,1034,6.78,4,2,17.0,11.0,159,9.0,75.0,4.0,,2.0,57,27,17.0,9.0,10,3.0,0,0
+1170,A. Østbø,Arild,Østbø,34.0,Norway,759,Viking,Goalkeeper,Goalkeeper,12,11,1031,7.08,0,0,,,324,,60.0,1.0,,,7,6,,,1,,0,0
+362570,S. Innvær,Sander,Håvik Innvær,21.0,Norway,328,Haugesund,Midtbane,Kant,18,12,1004,6.59,1,0,10.0,6.0,231,8.0,76.6,14.0,1.0,8.0,102,44,42.0,17.0,11,5.0,0,0
+15805,G. Wikheim,Gustav,Mendonça Wikheim,32.0,Norway,324,Stromsgodset,Attacker,Kant,14,12,997,6.66,1,3,11.0,5.0,249,18.0,79.5,9.0,,3.0,150,59,54.0,22.0,24,22.0,1,1
+464048,E. Fauskanger,Einar,Bøe Fauskanger,17.0,Norway,328,Haugesund,Keeper,Keeper,11,11,990,6.65,0,0,,,399,1.0,64.8,2.0,,,12,9,2.0,1.0,2,1.0,0,0
+61234,D. Ďuriš,Dávid,Ďuriš,26.0,Slovakia,331,Rosenborg,Midfielder,Kant,12,11,987,6.96,4,1,13.0,7.0,198,9.0,78.7,12.0,1.0,5.0,80,32,21.0,6.0,6,12.0,0,0
+57160,N. Castro,Niklas Fernando,Nygård Castro,29.0,Chile,319,Brann,Attacker,Kant,17,11,981,7.12,4,3,15.0,10.0,477,26.0,76.7,13.0,1.0,3.0,129,41,24.0,6.0,14,26.0,1,0
+57449,A. Ndour,Alioune,Badou Ndour,28.0,Senegal,320,Kristiansund BK,Attacker,Spiss,24,9,975,6.7,3,0,24.0,15.0,184,8.0,67.2,13.0,,2.0,147,58,34.0,13.0,15,18.0,2,0
+39170,B. Sørmo,Bent,Langåssve Sørmo,29.0,Norway,324,Stromsgodset,Defender,Back,20,6,975,6.67,0,0,1.0,1.0,582,4.0,89.1,26.0,8.0,16.0,101,61,8.0,5.0,23,14.0,1,0
+161943,N. Holm,Noah Emmanuel Jean,Holm,24.0,Norway,331,Rosenborg,Attacker,Spiss,17,10,971,6.81,1,2,17.0,4.0,156,9.0,70.8,17.0,2.0,3.0,143,70,20.0,6.0,24,18.0,2,0
+318416,M. Broholm,Marius,Sivertsen Broholm,21.0,Norway,331,Rosenborg,Midfielder,Kant,11,11,949,7.34,5,1,18.0,12.0,451,20.0,86.2,8.0,1.0,8.0,102,41,41.0,18.0,15,7.0,3,0
+15832,J. Sørensen,Jakob,Lungi Sørensen,27.0,Denmark,319,Brann,Midfielder,Sentral midt,12,11,949,7.23,1,1,11.0,3.0,802,12.0,73.9,24.0,2.0,22.0,126,63,7.0,5.0,12,24.0,7,0
+264390,T. Haltvik,Teodor,Berg Haltvik,25.0,Norway,2143,KFUM Oslo,Midfielder,Sentral midt,26,9,942,6.68,1,1,18.0,7.0,243,7.0,75.5,14.0,1.0,5.0,144,57,43.0,18.0,17,13.0,2,0
+405795,D. Schneider,Daniel,Schneider,23.0,Norway,2143,KFUM Oslo,Forsvar,Stopper,0,0,920,6.64,0,0,1.0,,627,1.0,86.7,21.0,5.0,11.0,96,51,7.0,4.0,1,9.0,1,0
+372503,S. Granaas,Sondre Milian,Granaas,19.0,Norway,329,Molde,Midtbane,Kant,21,9,913,6.67,1,1,6.0,5.0,432,9.0,81.4,15.0,1.0,6.0,126,39,18.0,4.0,11,16.0,3,0
+151191,K. Eriksen,Kristian,Eriksen,30.0,Norway,329,Molde,Midfielder,Sentral midt,14,10,905,6.94,3,0,16.0,7.0,257,8.0,66.5,14.0,2.0,6.0,117,57,4.0,,8,17.0,2,0
+386289,E. Amundsen-Day,,,20.0,,2159,Ham-Kam,Defender,Stopper,13,11,901,6.77,1,0,4.0,2.0,539,3.0,84.4,15.0,11.0,12.0,80,47,,,7,11.0,2,1
+408480,A. Warneryd,Alexander Rickard Chadchai,Thongla-Iad Warneryd,20.0,Sweden,325,Tromso,Midtbane,Kant,13,11,901,7.0,1,0,10.0,2.0,301,16.0,82.7,6.0,,6.0,100,47,26.0,11.0,22,18.0,1,0
+57159,S. Fet,Sondre,Brunstad Fet,28.0,Norway,327,Bodo/Glimt,Midfielder,Sentral midt,23,9,900,6.88,4,1,14.0,7.0,328,11.0,81.9,27.0,1.0,10.0,102,56,15.0,4.0,16,13.0,0,0
+425846,J. Abdulai,Wolji Jalal,Abdulai,20.0,Ghana,329,Molde,Midtbane,Sentral midtbane,20,8,890,6.95,4,1,36.0,19.0,127,12.0,73.0,9.0,2.0,2.0,151,66,29.0,14.0,22,45.0,6,0
+377313,F. Fall,Fallou,Fall,21.0,Senegal,2149,Fredrikstad,Angrep,Kant,10,10,881,7.2,1,0,5.0,2.0,502,3.0,79.4,21.0,4.0,22.0,101,55,3.0,3.0,10,16.0,4,0
+412028,O. Spiten-Nysæter,Oskar,Spiten-Nysæter,18.0,Norway,329,Molde,Midtbane,Offensiv midtbane,0,0,863,7.02,4,0,20.0,8.0,236,14.0,80.9,13.0,1.0,6.0,112,52,45.0,20.0,16,19.0,2,0
+294713,O. Okeke,Obilor,Denzel Okeke,23.0,Norway,2143,KFUM Oslo,Midtbane,Sentral midtbane,11,9,857,7.27,6,1,19.0,12.0,180,10.0,79.2,10.0,,4.0,123,55,35.0,15.0,27,15.0,2,0
+314290,B. Kristensen,Bjørn Martin,Kristensen,23.0,Norway,2143,KFUM Oslo,Forsvar,Stopper,0,0,847,6.64,2,1,14.0,6.0,139,11.0,61.6,9.0,1.0,2.0,122,46,27.0,11.0,16,14.0,5,0
+416072,A. Grindhaug,Almar Gjerd,Grindhaug,19.0,Norway,328,Haugesund,Midtbane,Sentral midtbane,0,0,813,6.7,0,1,6.0,4.0,398,2.0,78.9,24.0,7.0,8.0,77,39,3.0,1.0,10,14.0,2,0
+265838,M. Sjøeng,Magnus Smelhus,Sjøeng,23.0,Norway,326,Valerenga,Keeper,Keeper,9,9,810,6.5,0,0,,,294,1.0,65.1,,,,3,2,,,1,,0,0
+282651,I. Vådebu,Isak,Vådebu,22.0,Norway,325,Tromso,Forsvar,Stopper,14,8,810,6.91,0,1,2.0,,510,6.0,90.3,15.0,4.0,8.0,69,41,7.0,2.0,10,7.0,0,1
+406479,W. Osnes-Ringen,William,Osnes-Ringen,19.0,Norway,2159,Ham-Kam,Midtbane,Sentral midtbane,20,7,808,6.61,0,1,6.0,2.0,272,6.0,86.5,16.0,4.0,5.0,96,42,24.0,12.0,12,17.0,2,0
+341059,J. Reitan-Sunde,Jesper,Reitan-Sunde,19.0,Norway,331,Rosenborg,Midtbane,Sentral midtbane,17,9,806,6.64,0,1,3.0,1.0,96,5.0,72.9,10.0,2.0,2.0,91,38,14.0,2.0,23,11.0,1,0
+422654,A. Bondhus,Anders,Bondhus,20.0,Norway,328,Haugesund,Forsvar,Back,0,0,784,6.68,0,1,3.0,,279,6.0,79.4,26.0,11.0,12.0,80,46,9.0,3.0,6,10.0,0,0
+347895,L. Alvheim,Leander,Næss Alvheim,21.0,Norway,320,Kristiansund BK,Forsvar,Back,0,0,745,6.87,6,0,23.0,13.0,134,8.0,65.2,7.0,1.0,4.0,142,61,15.0,6.0,11,18.0,3,0
+394930,E. Pettersen,Edvard,Sundbø Pettersen,19.0,Norway,332,Sandefjord,Midtbane,Sentral midtbane,12,8,736,6.73,2,0,7.0,6.0,263,12.0,78.1,11.0,2.0,4.0,76,36,9.0,6.0,6,13.0,1,0
+471180,F. Flex,Frederik,Flex,21.0,Denmark,320,Kristiansund BK,Midtbane,Sentral midtbane,0,0,733,6.59,0,3,,,323,13.0,85.3,11.0,1.0,11.0,62,25,8.0,2.0,7,10.0,1,0
+156536,M. Hansen,Mads Kristian,Hansen,23.0,Denmark,319,Brann,Midtbane,Sentral midtbane,24,7,731,6.65,0,0,20.0,8.0,261,12.0,77.5,6.0,,1.0,91,25,23.0,5.0,5,13.0,1,0
+416077,H. Volden,Håkon,Singsdal Volden,18.0,Norway,331,Rosenborg,Forsvar,Stopper,13,7,722,6.91,0,0,,,706,3.0,93.1,9.0,8.0,7.0,59,45,1.0,1.0,17,5.0,1,0
+323591,S. Nypan,Sverre,Halseth Nypan,19.0,Norway,331,Rosenborg,Midtbane,Offensiv midtbane,9,7,654,6.97,1,0,14.0,7.0,257,6.0,80.0,12.0,2.0,3.0,57,30,7.0,1.0,11,4.0,0,0
+423941,L. Seone,Ismaël Libo,Séoné,20.0,Burkina Faso,328,Haugesund,Angrep,Kant,0,0,652,6.53,1,0,10.0,6.0,145,4.0,81.4,3.0,2.0,3.0,102,25,4.0,2.0,8,21.0,0,0
+266663,M. Riisnæs,Magnus Bech,Riisnæs,21.0,Norway,326,Valerenga,Midtbane,Offensiv midtbane,11,7,649,7.12,2,2,13.0,5.0,273,17.0,86.5,9.0,1.0,7.0,77,41,33.0,17.0,9,8.0,2,0
+191728,M. Thornes,Mats,Selmer Thornes,23.0,Norway,2142,Bryne,Midtbane,Sentral midtbane,14,7,622,6.72,1,0,4.0,2.0,193,6.0,87.5,4.0,1.0,5.0,52,25,12.0,5.0,9,2.0,1,0
+345019,J. Gregersen,Jesper,Gregersen,21.0,Norway,2142,Bryne,Midtbane,Sentral midtbane,1,1,609,6.79,0,0,2.0,,319,3.0,78.3,23.0,3.0,5.0,64,38,7.0,1.0,5,8.0,1,0
+349411,F. Loftesnes-Bjune,Filip,Loftesnes-Bjune,20.0,Norway,332,Sandefjord,Forsvar,Stopper,8,7,608,6.74,0,0,,,317,7.0,87.0,18.0,1.0,4.0,63,28,4.0,3.0,2,4.0,1,0
+329405,V. Solheim,Vegard,Solheim,21.0,Norway,328,Haugesund,Forsvar,Back,11,8,596,6.65,0,0,3.0,,184,2.0,63.6,11.0,2.0,6.0,64,34,8.0,5.0,3,5.0,0,0
+281660,M. Enggård,Mads,Enggård,21.0,Denmark,329,Molde,Midtbane,Sentral midtbane,9,7,591,6.47,0,0,6.0,1.0,280,,82.4,7.0,2.0,5.0,49,19,9.0,2.0,3,11.0,4,0
+457628,Michael Opoku,Michael,Opoku,20.0,Denmark,333,Sarpsborg 08 FF,Angrep,Kant,0,0,586,6.85,1,1,14.0,7.0,160,7.0,77.6,9.0,,4.0,71,38,29.0,13.0,11,5.0,0,0
+359472,D. Braut,Daniel,Braut,20.0,Norway,325,Tromso,Angrep,Spiss,0,0,585,6.77,3,3,13.0,7.0,135,6.0,82.1,5.0,,,125,61,6.0,3.0,13,15.0,0,0
+371637,J. Therkelsen,Jonas,Torrissen Therkelsen,22.0,Norway,324,Stromsgodset,Midtbane,Sentral midtbane,7,7,548,6.9,2,0,7.0,6.0,142,8.0,75.4,5.0,1.0,1.0,63,28,10.0,5.0,13,9.0,1,0
+319469,V. Lund,Valdemar,Lund Jensen,22.0,Denmark,329,Molde,Forsvar,Back,12,7,545,6.67,0,0,1.0,,366,,87.4,8.0,4.0,3.0,41,22,1.0,,4,6.0,1,0
+340611,A. Nibe,Andreas,Nibe Hansen,22.0,Denmark,333,Sarpsborg 08 FF,Forsvar,Back,8,7,532,6.76,0,0,4.0,1.0,153,6.0,81.2,10.0,1.0,4.0,40,20,4.0,2.0,3,5.0,1,0
+137510,M. Koskela,Miika,Koskela,22.0,Finland,328,Haugesund,Midtbane,Sentral midtbane,8,6,532,6.75,0,0,4.0,2.0,259,1.0,81.8,9.0,12.0,6.0,37,26,,,1,5.0,3,0
+364509,M. Gjone,Martin,Gjone,20.0,Norway,332,Sandefjord,Forsvar,Back,0,0,524,6.86,0,0,1.0,,392,2.0,85.2,5.0,4.0,5.0,50,35,,,7,5.0,1,1
+310471,S. Skeide,Syver,Skundberg Skeide,21.0,Norway,320,Kristiansund BK,Forsvar,Stopper,13,4,519,6.65,0,0,3.0,1.0,209,3.0,87.4,12.0,5.0,6.0,55,28,15.0,11.0,4,10.0,2,0
+70507,E. Melkersen,Elias,Hoff Melkersen,23.0,Norway,324,Stromsgodset,Angrep,Spiss,8,8,513,6.56,0,1,7.0,4.0,59,5.0,51.0,1.0,,1.0,67,18,9.0,3.0,5,12.0,1,0
+303387,F. Carstensen,Frederik,Carstensen,23.0,Denmark,333,Sarpsborg 08 FF,Forsvar,Back,9,7,501,7.11,4,0,7.0,4.0,129,5.0,78.7,10.0,1.0,3.0,67,27,13.0,4.0,5,10.0,0,0
+449592,V. Nielsen,Villads,Schmidt Nielsen,20.0,Denmark,327,Bodo/Glimt,Forsvar,Stopper,11,4,476,7.12,0,0,2.0,1.0,519,2.0,87.5,1.0,5.0,5.0,28,15,,,3,3.0,0,0
+296831,M. Rijks,Mees,Rijks,22.0,Netherlands,326,Valerenga,Angrep,Spiss,14,4,472,6.84,1,2,10.0,5.0,100,7.0,74.3,9.0,1.0,3.0,70,29,14.0,5.0,6,12.0,1,0
+290983,N. Möller,Nikolaj Duus,Möller,23.0,Sweden,324,Stromsgodset,Angrep,Spiss,10,4,465,6.84,1,0,7.0,1.0,96,9.0,80.4,1.0,2.0,1.0,52,28,3.0,3.0,5,3.0,0,0
+464052,K. Skurve Håland,Kristian,Skurve Håland,18.0,Norway,2142,Bryne,Midtbane,Sentral midt,17,4,464,6.67,1,2,4.0,2.0,90,7.0,76.9,5.0,,1.0,61,19,17.0,6.0,5,11.0,1,0
+509623,I. Camara,Ismael,Petcho Camara,19.0,Côte d'Ivoire,328,Haugesund,Midtbane,Sentral midtbane,0,0,459,6.59,0,0,4.0,2.0,118,3.0,80.3,12.0,1.0,1.0,88,40,33.0,14.0,9,6.0,1,0
