@@ -147,7 +147,7 @@ export default function InnsiktPage() {
       .then(r => r.json())
       .then((data: Player[]) => {
         setPlayers(data)
-        const teams = [...new Set(data.map(p => p.team_name).filter(Boolean))]
+        const teams = Array.from(new Set(data.map(p => p.team_name).filter(Boolean)))
         setTeamStats(
           teams.map(t => {
             const tp = data.filter(p => p.team_name === t)
