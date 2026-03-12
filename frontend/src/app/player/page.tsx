@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, Activity, TrendingUp, TrendingDown, Minus, Users } from "lucide-react"
+import Image from "next/image"
+import { Search, X, ChevronRight } from "lucide-react"
 
 interface Player {
   player_id: number
   player_name: string
   team_name: string
-  team_logo: string | null
   age: number
   pos_group: string
   minutes: number
@@ -17,310 +17,317 @@ interface Player {
   player_tier: string
   goals: number
   assists: number
-  market_value: number
-  market_value_trend: string
   reliability: number
+  value_tier: string
+  scout_priority: number
 }
 
-const posLabel: Record<string, string> = {
-  DEF: "Forsvarer",
-  MID: "Midtbane",
-  ATT: "Angriper",
-  GK:  "Keeper"
+// ── Fargesystem — identisk med dashboard ──────────────────────────
+const C = {
+  bg:     "#07080c",
+  panel:  "rgba(14, 16, 24, 0.90)",
+  border: "rgba(255,255,255,0.05)",
+  indigo:  "#6366f1",
+  emerald: "#10b981",
+  rose:    "#f43f5e",
+  violet:  "#8b5cf6",
+  amber:   "#f59e0b",
+  blue:    "#3b82f6",
 }
 
-const posColor: Record<string, string> = {
-  DEF: "text-blue-400 bg-blue-500/10 border-blue-500/25",
-  MID: "text-amber-400 bg-amber-500/10 border-amber-500/25",
-  ATT: "text-green-400 bg-green-500/10 border-green-500/25",
-  GK:  "text-purple-400 bg-purple-500/10 border-purple-500/25"
+const POS_COLOR: Record<string, string> = {
+  GK: C.amber, DEF: C.blue, MID: C.violet, ATT: C.rose,
+}
+const POS_LABEL: Record<string, string> = {
+  GK: "GK", DEF: "DEF", MID: "MID", ATT: "ATT",
+}
+const TIER_CFG: Record<string, { color: string; label: string }> = {
+  "Elite":       { color: C.emerald, label: "Elite"      },
+  "Over snitt":  { color: C.indigo,  label: "Etablert"   },
+  "Rundt snitt": { color: C.amber,   label: "Utviklende" },
+  "Under snitt": { color: C.rose,    label: "Begrenset"  },
 }
 
-function getReliability(minutes: number) {
-  if (minutes >= 900) return { dot: "#22c55e", label: "Pålitelig" }
-  if (minutes >= 450) return { dot: "#fbbf24", label: "Usikker"  }
-  return                     { dot: "#ef4444", label: "Lite data" }
-}
+const LOGO_MAP: [string, string][] = [
+  ["bodø","/images/Logo/bodo-glimt.png"],["glimt","/images/Logo/bodo-glimt.png"],
+  ["brann","/images/Logo/Brann.png"],["bryne","/images/Logo/Bryne.png"],
+  ["fredrikstad","/images/Logo/Fredrikstad.png"],
+  ["hamkam","/images/Logo/hamkam.png"],["ham-kam","/images/Logo/hamkam.png"],
+  ["haugesund","/images/Logo/haugesund.png"],
+  ["kfum","/images/Logo/KFUM.png"],["kristiansund","/images/Logo/Kristiansund.png"],
+  ["molde","/images/Logo/Molde.png"],["rosenborg","/images/Logo/Rosenborg.png"],
+  ["sandefjord","/images/Logo/Sandefjord.png"],["sarpsborg","/images/Logo/sarpsborg-08.png"],
+  ["strømsgodset","/images/Logo/stromsgodset.png"],["stromsgodset","/images/Logo/stromsgodset.png"],
+  ["godset","/images/Logo/stromsgodset.png"],
+  ["tromsø","/images/Logo/tromso.png"],["tromso","/images/Logo/tromso.png"],
+  ["vålerenga","/images/Logo/valerenga.png"],["valerenga","/images/Logo/valerenga.png"],
+  ["viking","/images/Logo/Viking.png"],
+]
+const getLogo = (t: string) => LOGO_MAP.find(([k]) => t?.toLowerCase().includes(k))?.[1] ?? null
 
-function getScoreColor(score: number | null) {
-  if (score === null || score === undefined) return "text-textMuted"
-  if (score > 0.6) return "text-green-400"
-  if (score > 0.3) return "text-brand"
-  if (score > 0)   return "text-amber-400"
-  return "text-red-400"
-}
-
-function formatValue(val: number) {
-  if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`
-  return `${(val / 1000).toFixed(0)}k`
-}
-
+// ── Spillerkort ───────────────────────────────────────────────────
 function PlayerCard({ player }: { player: Player }) {
-  const reliability = getReliability(player.minutes)
-  const isU23 = player.player_tier === "u23" || player.age <= 23
-  const TrendIcon = player.market_value_trend === "up" ? TrendingUp
-    : player.market_value_trend === "down" ? TrendingDown : Minus
-  const trendColor = player.market_value_trend === "up" ? "text-green-400"
-    : player.market_value_trend === "down" ? "text-red-400" : "text-textMuted"
-
-  const initials = (player.player_name || "")
-    .split(" ").map(n => n[0]).slice(0, 2).join("")
+  const logo = getLogo(player.team_name)
+  const posColor = POS_COLOR[player.pos_group] ?? C.indigo
+  const tier = TIER_CFG[player.value_tier] ?? { color: "rgba(255,255,255,0.3)", label: player.value_tier ?? "" }
+  const score = Math.round((player.scout_priority ?? 0) * 100)
+  const isU23 = player.player_tier === "u23_prospect"
 
   return (
-    <Link href={`/player/${encodeURIComponent(player.player_name)}`}>
-      <div className="glass-panel p-5 hover:bg-white/5 transition-all duration-200 cursor-pointer group h-full flex flex-col">
+    <Link href={`/player/${encodeURIComponent(player.player_name)}`} className="group block">
+      <div className="relative rounded-2xl border overflow-hidden transition-all duration-300 h-full"
+        style={{ background: C.panel, borderColor: C.border }}
+        onMouseEnter={e => {
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = `${tier.color}35`
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 0 1px ${tier.color}10, 0 20px 40px -15px ${tier.color}15`
+        }}
+        onMouseLeave={e => {
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = C.border
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = "none"
+        }}>
 
-        {/* Top row */}
-        <div className="flex items-start justify-between mb-4">
-          {/* Avatar */}
-          <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold border border-white/10 flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(168,85,247,0.12) 100%)" }}
-          >
-            {initials}
-          </div>
+        {/* Top glow line — tier farge */}
+        <div className="absolute inset-x-0 top-0 h-px transition-opacity opacity-0 group-hover:opacity-100"
+          style={{ background: `linear-gradient(90deg, transparent, ${tier.color}70, transparent)` }} />
 
-          {/* Badges */}
-          <div className="flex items-center gap-1.5">
-            {isU23 && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25">
-                U23
+        <div className="p-4">
+          {/* Header: logo + badges */}
+          <div className="flex items-start justify-between mb-3">
+            <div className="relative w-9 h-9 flex-shrink-0">
+              {logo
+                ? <Image src={logo} alt="" fill className="object-contain" />
+                : <div className="w-full h-full rounded-xl flex items-center justify-center text-xs font-black"
+                    style={{ background: `${posColor}15`, color: posColor }}>
+                    {player.player_name.charAt(0)}
+                  </div>
+              }
+            </div>
+            <div className="flex items-center gap-1.5">
+              {isU23 && (
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                  style={{ background: `${C.violet}15`, color: C.violet, border: `1px solid ${C.violet}25` }}>
+                  U23
+                </span>
+              )}
+              <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+                style={{ background: `${posColor}12`, color: posColor, border: `1px solid ${posColor}25` }}>
+                {POS_LABEL[player.pos_group] ?? player.pos_group}
               </span>
-            )}
-            <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${posColor[player.pos_group] || "text-textMuted bg-white/5 border-white/10"}`}>
-              {posLabel[player.pos_group] || player.pos_group}
-            </span>
-          </div>
-        </div>
-
-        {/* Name + team */}
-        <div className="mb-4">
-          <h3
-            className="font-semibold text-white text-sm leading-tight mb-1 group-hover:text-brand transition-colors"
-            style={{ fontFamily: "'Syne', sans-serif" }}
-          >
-            {player.player_name}
-          </h3>
-          <p className="text-xs text-textMuted">{player.team_name} · {player.age} år</p>
-        </div>
-
-        {/* Score */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="text-xs text-textMuted mb-0.5">Prestasjon</div>
-            <span className={`text-xl font-bold ${getScoreColor(player.fair_score)}`} style={{ fontFamily: "'Syne', sans-serif" }}>
-              {player.fair_score !== null ? player.fair_score.toFixed(2) : "—"}
-            </span>
-          </div>
-          <div className="text-right">
-            <div className="text-xs text-textMuted mb-0.5">Markedsverdi</div>
-            <div className="flex items-center gap-1 justify-end">
-              <TrendIcon size={12} className={trendColor} />
-              <span className="text-sm font-semibold text-white">{formatValue(player.market_value)} kr</span>
             </div>
           </div>
-        </div>
 
-        {/* Stats strip */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {[
-            { label: "Mål",    value: player.goals   ?? 0 },
-            { label: "Assist", value: player.assists  ?? 0 },
-            { label: "Min",    value: player.minutes >= 1000 ? `${(player.minutes/1000).toFixed(1)}k` : player.minutes },
-          ].map(s => (
-            <div key={s.label} className="bg-white/3 rounded-lg py-1.5 px-2 text-center border border-white/5">
-              <div className="text-xs font-semibold text-white">{s.value}</div>
-              <div className="text-xs text-textMuted">{s.label}</div>
+          {/* Navn + lag */}
+          <div className="mb-3">
+            <p className="text-sm font-black text-white leading-tight mb-0.5 group-hover:text-white transition-colors"
+              style={{ fontFamily: "'Syne', sans-serif" }}>
+              {player.player_name}
+            </p>
+            <p className="text-[10px] text-white/35">{player.team_name} · {player.age} år</p>
+          </div>
+
+          {/* Mål / Assist / Min */}
+          <div className="grid grid-cols-3 gap-1 mb-3">
+            {[
+              { l: "Mål",    v: player.goals ?? 0 },
+              { l: "Assist", v: player.assists ?? 0 },
+              { l: "Min",    v: player.minutes >= 1000 ? `${(player.minutes/1000).toFixed(1)}k` : player.minutes },
+            ].map(s => (
+              <div key={s.l} className="rounded-lg py-1.5 text-center border border-white/[0.05]"
+                style={{ background: "rgba(255,255,255,0.025)" }}>
+                <p className="text-xs font-bold text-white">{s.v}</p>
+                <p className="text-[9px] text-white/30">{s.l}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Scout-prioritet bar + tier */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+              <div className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${score}%`, background: tier.color, boxShadow: `0 0 6px ${tier.color}` }} />
             </div>
-          ))}
-        </div>
-
-        {/* Reliability */}
-        <div className="flex items-center gap-1.5 mt-auto">
-          <div
-            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-            style={{ background: reliability.dot, boxShadow: `0 0 5px ${reliability.dot}` }}
-          />
-          <span className="text-xs text-textMuted">{reliability.label}</span>
-          <span className="text-xs text-textMuted ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-            Se profil →
-          </span>
+            <span className="text-[9px] font-bold tabular-nums flex-shrink-0" style={{ color: tier.color }}>
+              {tier.label}
+            </span>
+          </div>
         </div>
       </div>
     </Link>
   )
 }
 
+// ── Hoved ─────────────────────────────────────────────────────────
 export default function PlayerOverviewPage() {
-  const [players, setPlayers] = useState<Player[]>([])
-  const [filtered, setFiltered] = useState<Player[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
+  const [players,     setPlayers]     = useState<Player[]>([])
+  const [filtered,    setFiltered]    = useState<Player[]>([])
+  const [loading,     setLoading]     = useState(true)
+  const [search,      setSearch]      = useState("")
   const [selectedPos, setSelectedPos] = useState("Alle")
-  const [selectedTier, setSelectedTier] = useState("Alle")
-
-  const posGroups = ["Alle", "MID", "ATT", "DEF", "GK"]
-  const tiers = ["Alle", "senior", "u23"]
+  const [selectedTier,setSelectedTier]= useState("Alle")
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/players")
-      .then(res => res.json())
+    fetch("http://localhost:8000/api/players?limit=254&sort_by=scout_priority")
+      .then(r => r.json())
       .then(data => {
-        // Shuffle for "random" feel on load
-        const shuffled = [...data].sort(() => Math.random() - 0.5)
-        setPlayers(shuffled)
-        setFiltered(shuffled)
-        setLoading(false)
+        const arr = Array.isArray(data) ? data : []
+        setPlayers(arr)
+        setFiltered(arr)
       })
-      .catch(() => setLoading(false))
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [])
 
   useEffect(() => {
-    let result = [...players]
-
+    let res = [...players]
     if (search)
-      result = result.filter(p =>
+      res = res.filter(p =>
         p.player_name?.toLowerCase().includes(search.toLowerCase()) ||
         p.team_name?.toLowerCase().includes(search.toLowerCase())
       )
-
-    if (selectedPos !== "Alle")
-      result = result.filter(p => p.pos_group === selectedPos)
-
-    if (selectedTier !== "Alle")
-      result = result.filter(p => p.player_tier === selectedTier)
-
-    setFiltered(result)
+    if (selectedPos !== "Alle") res = res.filter(p => p.pos_group === selectedPos)
+    if (selectedTier !== "Alle") {
+      if (selectedTier === "U23")    res = res.filter(p => p.player_tier === "u23_prospect")
+      else if (selectedTier === "Elite") res = res.filter(p => p.value_tier === "Elite")
+      else res = res.filter(p => p.player_tier === "senior")
+    }
+    setFiltered(res)
   }, [search, selectedPos, selectedTier, players])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-bg0">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-brand" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Activity className="w-6 h-6 text-brand animate-pulse" />
-            </div>
-          </div>
-          <p className="text-textMuted text-sm tracking-widest uppercase animate-pulse">Laster spillere</p>
-        </div>
-      </div>
-    )
-  }
+  const hasFilter = search || selectedPos !== "Alle" || selectedTier !== "Alle"
+
+  if (loading) return (
+    <div className="flex min-h-screen items-center justify-center" style={{ background: C.bg }}>
+      <p className="text-sm text-white/25">Laster spillere…</p>
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-bg0" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ── HEADER ───────────────────────────────────── */}
-      <div
-        className="border-b border-white/5"
-        style={{ background: "radial-gradient(ellipse 60% 60% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 70%)" }}
-      >
-        <div className="max-w-7xl mx-auto px-8 py-12">
-          <div className="flex items-center gap-3 mb-2">
-            <Users className="w-5 h-5 text-brand" />
-            <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Spillerprofiler</span>
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-3" style={{ fontFamily: "'Syne', sans-serif" }}>
-            Alle spillere
-          </h1>
-          <p className="text-textMuted text-lg max-w-xl">
-            Søk, filtrer og utforsk alle {players.length} spillere i Eliteserien.
-          </p>
-        </div>
+      {/* Ambient */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full opacity-[0.025]"
+          style={{ background: C.indigo, filter: "blur(80px)" }} />
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-[1400px] mx-auto px-8 py-10 space-y-8">
 
-        {/* ── SEARCH + FILTERS ─────────────────────────── */}
-        <div className="glass-panel p-5 mb-8">
-          <div className="flex flex-col md:flex-row gap-3">
+        {/* ── SØKE- OG FILTERPANEL ──────────────────── */}
+        <div className="relative rounded-2xl border overflow-hidden"
+          style={{ background: C.panel, borderColor: C.border }}>
+          <div className="absolute inset-x-0 top-0 h-px"
+            style={{ background: `linear-gradient(90deg, transparent, ${C.indigo}60, transparent)` }} />
 
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-textMuted" size={16} />
+          <div className="p-5">
+            {/* Søkefelt */}
+            <div className="relative mb-4">
+              <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
               <input
                 type="text"
-                placeholder="Søk på navn eller lag..."
+                placeholder="Søk på navn eller lag…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full bg-bg0/60 border border-white/8 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand transition-all text-white placeholder-textMuted"
+                className="w-full rounded-xl pl-10 pr-10 py-3 text-sm text-white placeholder-white/25 focus:outline-none transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: `1px solid ${search ? C.indigo + "50" : "rgba(255,255,255,0.07)"}`,
+                }}
                 autoFocus
               />
-            </div>
-
-            {/* Pos filter */}
-            <div className="flex gap-2 flex-wrap">
-              {posGroups.map(pos => (
-                <button
-                  key={pos}
-                  onClick={() => setSelectedPos(pos)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                    selectedPos === pos
-                      ? "bg-brand/15 text-brand border-brand/30"
-                      : "bg-white/3 text-textMuted border-white/5 hover:text-white hover:bg-white/8"
-                  }`}
-                >
-                  {pos}
+              {search && (
+                <button onClick={() => setSearch("")}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors">
+                  <X size={13} />
                 </button>
-              ))}
+              )}
             </div>
 
-            {/* Tier filter */}
-            <div className="flex gap-2">
-              {tiers.map(t => (
-                <button
-                  key={t}
-                  onClick={() => setSelectedTier(t)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                    selectedTier === t
-                      ? "bg-brand/15 text-brand border-brand/30"
-                      : "bg-white/3 text-textMuted border-white/5 hover:text-white hover:bg-white/8"
-                  }`}
-                >
-                  {t === "senior" ? "Senior" : t === "u23" ? "U23" : "Alle"}
-                </button>
-              ))}
-            </div>
-          </div>
+            {/* Filtre */}
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Posisjon */}
+              <div className="flex items-center gap-1.5">
+                {["Alle","MID","ATT","DEF","GK"].map(pos => {
+                  const active = selectedPos === pos
+                  const pc = POS_COLOR[pos] ?? C.indigo
+                  return (
+                    <button key={pos} onClick={() => setSelectedPos(pos)}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                      style={{
+                        background: active ? `${pc}18` : "rgba(255,255,255,0.03)",
+                        borderWidth: 1, borderStyle: "solid",
+                        borderColor: active ? `${pc}40` : "rgba(255,255,255,0.06)",
+                        color: active ? pc : "rgba(255,255,255,0.40)",
+                      }}>
+                      {pos}
+                    </button>
+                  )
+                })}
+              </div>
 
-          {/* Result count */}
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-xs text-textMuted">
-              Viser <span className="text-white font-medium">{filtered.length}</span> spillere
-            </span>
-            {(search || selectedPos !== "Alle" || selectedTier !== "Alle") && (
-              <button
-                onClick={() => { setSearch(""); setSelectedPos("Alle"); setSelectedTier("Alle") }}
-                className="text-xs text-textMuted hover:text-white transition-colors"
-              >
-                Nullstill filtre ×
-              </button>
-            )}
+              <div className="h-4 w-px bg-white/10" />
+
+              {/* Tier */}
+              <div className="flex items-center gap-1.5">
+                {[
+                  { k: "Alle",   l: "Alle"   },
+                  { k: "Elite",  l: "Elite"  },
+                  { k: "Senior", l: "Senior" },
+                  { k: "U23",    l: "U23"    },
+                ].map(({ k, l }) => {
+                  const active = selectedTier === k
+                  const tc = k === "Elite" ? C.emerald : k === "U23" ? C.violet : C.indigo
+                  return (
+                    <button key={k} onClick={() => setSelectedTier(k)}
+                      className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                      style={{
+                        background: active ? `${tc}18` : "rgba(255,255,255,0.03)",
+                        borderWidth: 1, borderStyle: "solid",
+                        borderColor: active ? `${tc}40` : "rgba(255,255,255,0.06)",
+                        color: active ? tc : "rgba(255,255,255,0.40)",
+                      }}>
+                      {l}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Teller + nullstill */}
+              <div className="ml-auto flex items-center gap-3">
+                <span className="text-[11px] text-white/30">
+                  <span className="text-white font-semibold">{filtered.length}</span> spillere
+                </span>
+                {hasFilter && (
+                  <button
+                    onClick={() => { setSearch(""); setSelectedPos("Alle"); setSelectedTier("Alle") }}
+                    className="flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors">
+                    Nullstill <X size={9} />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* ── PLAYER GRID ──────────────────────────────── */}
+        {/* ── SPILLERGRID ───────────────────────────── */}
         {filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <Search className="w-10 h-10 text-textMuted mx-auto mb-4 opacity-30" />
-            <p className="text-textMuted">Ingen spillere matcher søket ditt</p>
+          <div className="flex flex-col items-center justify-center py-32 gap-3">
+            <Search size={24} className="text-white/10" />
+            <p className="text-sm text-white/25">Ingen spillere matcher søket</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filtered.slice(0, 80).map(player => (
-              <PlayerCard key={player.player_id || player.player_name} player={player} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {filtered.slice(0, 96).map(p => (
+                <PlayerCard key={p.player_id || p.player_name} player={p} />
+              ))}
+            </div>
+            {filtered.length > 96 && (
+              <p className="text-center text-[11px] text-white/22 pt-4">
+                Viser 96 av {filtered.length} — bruk søk for å finne flere
+              </p>
+            )}
+          </>
         )}
-
-        {filtered.length > 80 && (
-          <div className="text-center mt-8 text-xs text-textMuted">
-            Viser 80 av {filtered.length} spillere — bruk søk for å finne flere
-          </div>
-        )}
-
       </div>
     </div>
   )

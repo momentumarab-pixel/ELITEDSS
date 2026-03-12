@@ -2,503 +2,484 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useSearchParams, useRouter } from "next/navigation"
+import Image from "next/image"
+import { GitCompare, Search, X, Info } from "lucide-react"
 import {
-  Search, X, Activity, ArrowLeft,
-  TrendingUp, TrendingDown, Minus,
-  Swords, Trophy, Shield, Target,
-  ChevronRight
-} from "lucide-react"
-import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis,
-  PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend
+  RadarChart, PolarGrid, PolarAngleAxis,
+  Radar as RechartsRadar, ResponsiveContainer, Tooltip as RechTooltip,
 } from "recharts"
 
-interface Player { player_name: string; team_name: string }
+// ── Farger: kun 3 nivå-farger + to spillerfarger ──────────────────
+const CA = { c: "#34d399", soft: "rgba(52,211,153,0.06)", border: "rgba(52,211,153,0.18)" }
+const CB = { c: "#818cf8", soft: "rgba(129,140,248,0.06)", border: "rgba(129,140,248,0.18)" }
 
-interface PlayerData {
-  name: string
-  team: string
-  team_logo: string | null
-  age: number
-  pos_group: string
-  minutes: number
-  fair_score: number
-  forecast_score: number | null
-  goals_per90: number
-  assists_per90: number
-  passes_key_per90: number
-  tackles_total_per90: number
-  dribbles_success_per90: number
-  interceptions_per90?: number
-  passes_accuracy?: number
-  shot_efficiency?: number
-  intensity_per90?: number
-  z_goals_per90_pos?: number | null
-  z_assists_per90_pos?: number | null
-  z_passes_key_per90_pos?: number | null
-  z_passes_accuracy_pos?: number | null
-  z_duels_total_per90_pos?: number | null
-  z_intensity_per90_pos?: number | null
-  z_tackles_total_per90_pos?: number | null
-  z_interceptions_per90_pos?: number | null
-  z_dribbles_success_per90_pos?: number | null
-  physical: {
-    top_speed: number
-    distance_per90: number
-    sprints_per90: number
-    high_intensity_per90: number
-  }
+function tierColor(t: string) {
+  if (t === "Elite")       return "#34d399"
+  if (t === "Over snitt")  return "#818cf8"
+  if (t === "Rundt snitt") return "#fbbf24"
+  return "#f87171"
+}
+function tierLabel(p: number) {
+  if (p >= 85) return "Elite"
+  if (p >= 67) return "God"
+  if (p >= 34) return "Middels"
+  return "Svak"
+}
+function tierCol(p: number) {
+  if (p >= 85) return "#34d399"
+  if (p >= 67) return "#818cf8"
+  if (p >= 34) return "#fbbf24"
+  return "#f87171"
+}
+function zToP(z: number) {
+  return Math.round(Math.max(5, Math.min(95, 50 + (z / 3) * 45)))
 }
 
-interface DuellData {
-  player_a: PlayerData
-  player_b: PlayerData
+const LOGO_MAP: [string, string][] = [
+  ["bodø","/images/Logo/bodo-glimt.png"],["glimt","/images/Logo/bodo-glimt.png"],
+  ["brann","/images/Logo/Brann.png"],["bryne","/images/Logo/Bryne.png"],
+  ["fredrikstad","/images/Logo/Fredrikstad.png"],
+  ["hamkam","/images/Logo/hamkam.png"],["ham-kam","/images/Logo/hamkam.png"],
+  ["haugesund","/images/Logo/haugesund.png"],
+  ["kfum","/images/Logo/KFUM.png"],["kristiansund","/images/Logo/Kristiansund.png"],
+  ["molde","/images/Logo/Molde.png"],["rosenborg","/images/Logo/Rosenborg.png"],
+  ["sandefjord","/images/Logo/Sandefjord.png"],["sarpsborg","/images/Logo/sarpsborg-08.png"],
+  ["strømsgodset","/images/Logo/stromsgodset.png"],["godset","/images/Logo/stromsgodset.png"],
+  ["stromsgodset","/images/Logo/stromsgodset.png"],
+  ["tromsø","/images/Logo/tromso.png"],["tromso","/images/Logo/tromso.png"],
+  ["vålerenga","/images/Logo/valerenga.png"],["valerenga","/images/Logo/valerenga.png"],
+  ["viking","/images/Logo/Viking.png"],
+]
+const getLogo = (t: string) => LOGO_MAP.find(([k]) => t?.toLowerCase().includes(k))?.[1] ?? null
+
+const POS_CFG: Record<string, { color: string; bg: string; label: string }> = {
+  GK:  { color: "#fbbf24", bg: "rgba(251,191,36,0.10)",  label: "Keeper"    },
+  DEF: { color: "#60a5fa", bg: "rgba(96,165,250,0.10)",  label: "Forsvarer" },
+  MID: { color: "#a78bfa", bg: "rgba(167,139,250,0.10)", label: "Midtbane"  },
+  ATT: { color: "#f87171", bg: "rgba(248,113,113,0.10)", label: "Angriper"  },
 }
 
-function zToPercent(z: number | null | undefined): number {
-  if (z === null || z === undefined) return 50
-  return Math.min(Math.max(Math.round((z + 2.5) * 20), 5), 99)
+// Radar-akser med forklaring
+const RADAR_AKSER = [
+  { key: "goals",   label: "Mål",         col: "pct_goals_per90_radar",
+    info: "Mål per 90 min — sammenlignet mot alle 254 spillere i ligaen" },
+  { key: "assists", label: "Assist",       col: "pct_assists_per90_radar",
+    info: "Assist per 90 min — mot alle 254 spillere" },
+  { key: "shots",   label: "Skudd",        col: "pct_shots_total_per90_radar",
+    info: "Skudd per 90 min — mot alle 254 spillere" },
+  { key: "keypas",  label: "Nøkkelpass",   col: "pct_passes_key_per90_radar",
+    info: "Nøkkelpasninger per 90 min — mot alle 254 spillere" },
+  { key: "duels",   label: "Dueller",      col: "pct_duels_won_per90_radar",
+    info: "Vunnede dueller per 90 min — mot spillere i samme posisjon" },
+  { key: "tackle",  label: "Taklinger",    col: "pct_tackles_total_per90_radar",
+    info: "Taklinger per 90 min — mot spillere i samme posisjon" },
+  { key: "inter",   label: "Avskjæringer", col: "pct_interceptions_per90_radar",
+    info: "Avskjæringer per 90 min — mot spillere i samme posisjon" },
+  { key: "intense", label: "Intensitet",   col: "pct_intensity_per90_radar",
+    info: "Dueller + avskjæringer kombinert — mot spillere i samme posisjon" },
+  { key: "dueff",   label: "Duelleff.",    col: "pct_duel_efficiency_radar",
+    info: "Andel vunnede dueller — mot spillere i samme posisjon" },
+  { key: "paseff",  label: "Pass%",        col: "pct_pass_efficiency_radar",
+    info: "Pasningspresisjon — mot spillere i samme posisjon" },
+]
+
+interface Player {
+  player_name: string; age: number; nationality: string; team_name: string
+  pos_group: string; player_tier: string; minutes: number; games: number
+  goals: number; assists: number
+  goals_per90: number; assists_per90: number
+  fair_score: number; forecast_score: number; scout_priority: number
+  reliability: number; best_role_no: string; cluster_label: string
+  risk_upside_segment: string; value_tier: string
+  percentile_pos: number; percentile_all: number
+  [key: string]: any
+}
+interface SearchResult { player_name: string; team_name: string; pos_group: string; age: number }
+
+// ── Tooltip ───────────────────────────────────────────────────────
+function Tip({ text }: { text: string }) {
+  const [v, setV] = useState(false)
+  return (
+    <span className="relative inline-flex items-center ml-1">
+      <button onMouseEnter={() => setV(true)} onMouseLeave={() => setV(false)}
+        className="cursor-help" style={{ color: "rgba(255,255,255,0.22)" }}>
+        <Info size={10} />
+      </button>
+      {v && (
+        <span className="absolute z-50 bottom-5 left-0 w-52 rounded-xl px-3 py-2.5 text-[10px] leading-relaxed pointer-events-none"
+          style={{ background: "rgba(6,6,14,0.98)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.50)" }}>
+          {text}
+        </span>
+      )}
+    </span>
+  )
 }
 
-function getReliability(minutes: number) {
-  if (minutes >= 900) return { dot: "#22c55e", label: "Pålitelig" }
-  if (minutes >= 450) return { dot: "#fbbf24", label: "Usikker" }
-  return { dot: "#ef4444", label: "Lite data" }
-}
-
-const posLabel: Record<string, string> = {
-  DEF: "Forsvarer", MID: "Midtbane", ATT: "Angriper", GK: "Keeper"
-}
-
-export default function DuellPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  const [allPlayers, setAllPlayers] = useState<Player[]>([])
-  const [duellData, setDuellData] = useState<DuellData | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [searchA, setSearchA] = useState("")
-  const [searchB, setSearchB] = useState("")
-  const [showDropA, setShowDropA] = useState(false)
-  const [showDropB, setShowDropB] = useState(false)
-  const [selectedA, setSelectedA] = useState(searchParams.get("a") || "")
-  const [selectedB, setSelectedB] = useState(searchParams.get("b") || "")
-
+// ── Søk ──────────────────────────────────────────────────────────
+function SpillerSok({ farge, onVelg, valgt, nr }: {
+  farge: typeof CA; onVelg: (n: string) => void; valgt: Player | null; nr: 1 | 2
+}) {
+  const [q, setQ] = useState("")
+  const [res, setRes] = useState<SearchResult[]>([])
   useEffect(() => {
-    fetch("http://localhost:8000/api/players")
-      .then(r => r.json())
-      .then(data => setAllPlayers(data.map((p: any) => ({ player_name: p.player_name, team_name: p.team_name }))))
-  }, [])
-
-  useEffect(() => {
-    if (!selectedA || !selectedB) { setDuellData(null); return }
-    setLoading(true)
-    fetch(`http://localhost:8000/api/duell?player_a=${encodeURIComponent(selectedA)}&player_b=${encodeURIComponent(selectedB)}`)
-      .then(r => r.json())
-      .then(data => { setDuellData(data); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [selectedA, selectedB])
-
-  const filtA = allPlayers.filter(p =>
-    p.player_name.toLowerCase().includes(searchA.toLowerCase()) && p.player_name !== selectedB
-  ).slice(0, 8)
-
-  const filtB = allPlayers.filter(p =>
-    p.player_name.toLowerCase().includes(searchB.toLowerCase()) && p.player_name !== selectedA
-  ).slice(0, 8)
-
-  const selectA = (name: string) => {
-    setSelectedA(name); setSearchA(""); setShowDropA(false)
-    const p = new URLSearchParams(searchParams.toString()); p.set("a", name)
-    if (selectedB) p.set("b", selectedB)
-    router.push(`/duell?${p.toString()}`)
-  }
-
-  const selectB = (name: string) => {
-    setSelectedB(name); setSearchB(""); setShowDropB(false)
-    const p = new URLSearchParams(searchParams.toString())
-    if (selectedA) p.set("a", selectedA); p.set("b", name)
-    router.push(`/duell?${p.toString()}`)
-  }
-
-  const clearA = () => { setSelectedA(""); setDuellData(null) }
-  const clearB = () => { setSelectedB(""); setDuellData(null) }
-
-  // Head-to-head score
-  const h2h = duellData ? (() => {
-    const a = (duellData.player_a.fair_score || 0) * 0.7 + (duellData.player_a.forecast_score || 0) * 0.3
-    const b = (duellData.player_b.fair_score || 0) * 0.7 + (duellData.player_b.forecast_score || 0) * 0.3
-    const total = a + b || 1
-    return { a: Math.round((a / total) * 100), b: Math.round((b / total) * 100) }
-  })() : null
-
-  // Radar
-  const radarData = duellData ? [
-    { k: "Mål",        a: zToPercent(duellData.player_a.z_goals_per90_pos),        b: zToPercent(duellData.player_b.z_goals_per90_pos) },
-    { k: "Assist",     a: zToPercent(duellData.player_a.z_assists_per90_pos),       b: zToPercent(duellData.player_b.z_assists_per90_pos) },
-    { k: "Nøkkelpas.", a: zToPercent(duellData.player_a.z_passes_key_per90_pos),    b: zToPercent(duellData.player_b.z_passes_key_per90_pos) },
-    { k: "Dueller",    a: zToPercent(duellData.player_a.z_duels_total_per90_pos),   b: zToPercent(duellData.player_b.z_duels_total_per90_pos) },
-    { k: "Taklinger",  a: zToPercent(duellData.player_a.z_tackles_total_per90_pos), b: zToPercent(duellData.player_b.z_tackles_total_per90_pos) },
-    { k: "Intensitet", a: zToPercent(duellData.player_a.z_intensity_per90_pos),     b: zToPercent(duellData.player_b.z_intensity_per90_pos) },
-    { k: "Dribbling",  a: zToPercent(duellData.player_a.z_dribbles_success_per90_pos), b: zToPercent(duellData.player_b.z_dribbles_success_per90_pos) },
-    { k: "Pasn.pres.", a: zToPercent(duellData.player_a.z_passes_accuracy_pos),     b: zToPercent(duellData.player_b.z_passes_accuracy_pos) },
-  ] : []
-
-  // Metrics for side-by-side
-  const metrics = duellData ? [
-    { label: "Prestasjon",       a: duellData.player_a.fair_score,          b: duellData.player_b.fair_score,          fmt: (v: number) => v?.toFixed(2) },
-    { label: "Mål per 90",       a: duellData.player_a.goals_per90,         b: duellData.player_b.goals_per90,         fmt: (v: number) => v?.toFixed(2) },
-    { label: "Assist per 90",    a: duellData.player_a.assists_per90,       b: duellData.player_b.assists_per90,       fmt: (v: number) => v?.toFixed(2) },
-    { label: "Nøkkelpas./90",    a: duellData.player_a.passes_key_per90,    b: duellData.player_b.passes_key_per90,    fmt: (v: number) => v?.toFixed(2) },
-    { label: "Taklinger/90",     a: duellData.player_a.tackles_total_per90, b: duellData.player_b.tackles_total_per90, fmt: (v: number) => v?.toFixed(2) },
-    { label: "Dribbling/90",     a: duellData.player_a.dribbles_success_per90, b: duellData.player_b.dribbles_success_per90, fmt: (v: number) => v?.toFixed(2) },
-    { label: "Topphastighet",    a: duellData.player_a.physical?.top_speed, b: duellData.player_b.physical?.top_speed, fmt: (v: number) => `${v} km/t` },
-    { label: "Distanse/90",      a: duellData.player_a.physical?.distance_per90, b: duellData.player_b.physical?.distance_per90, fmt: (v: number) => `${v} km` },
-  ] : []
-
-  // Count wins
-  const aWins = metrics.filter(m => (m.a || 0) > (m.b || 0)).length
-  const bWins = metrics.filter(m => (m.b || 0) > (m.a || 0)).length
-
-  // Scout conclusion
-  const scoutConclusion = duellData ? (() => {
-    const aOff = (duellData.player_a.goals_per90 || 0) + (duellData.player_a.assists_per90 || 0)
-    const bOff = (duellData.player_b.goals_per90 || 0) + (duellData.player_b.assists_per90 || 0)
-    const aDef = (duellData.player_a.tackles_total_per90 || 0)
-    const bDef = (duellData.player_b.tackles_total_per90 || 0)
-    const aName = duellData.player_a.name.split(" ")[0]
-    const bName = duellData.player_b.name.split(" ")[0]
-    const offWinner = aOff > bOff ? aName : bName
-    const defWinner = aDef > bDef ? aName : bName
-    const overall = (duellData.player_a.fair_score || 0) > (duellData.player_b.fair_score || 0) ? aName : bName
-    return `${offWinner} er sterkere offensivt, mens ${defWinner} dominerer defensivt. Totalt sett skiller ${overall} seg ut med høyere prestasjonscore.`
-  })() : ""
+    if (q.length < 2) { setRes([]); return }
+    const t = setTimeout(async () => {
+      try {
+        const d = await fetch(`http://localhost:8000/api/search?q=${encodeURIComponent(q)}&limit=8`).then(r => r.json())
+        setRes(Array.isArray(d) ? d : [])
+      } catch {}
+    }, 120)
+    return () => clearTimeout(t)
+  }, [q])
 
   return (
-    <div className="min-h-screen bg-bg0" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div className="relative">
+      <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border transition-all"
+        style={{
+          background: valgt ? farge.soft : "rgba(255,255,255,0.02)",
+          borderColor: valgt ? farge.border : "rgba(255,255,255,0.06)",
+          boxShadow: valgt ? `0 0 0 1px ${farge.border}` : "none",
+        }}>
+        <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black flex-shrink-0"
+          style={{ background: farge.c, color: "#000" }}>{nr}</div>
+        <input
+          value={valgt ? valgt.player_name : q}
+          onChange={e => { setQ(e.target.value); if (valgt) onVelg("") }}
+          placeholder={`Søk spiller ${nr}…`}
+          style={{ background: "transparent", color: "#fff", caretColor: farge.c }}
+          className="flex-1 text-sm font-medium placeholder-white/20 focus:outline-none"
+        />
+        {(valgt || q) && (
+          <button onClick={() => { onVelg(""); setQ(""); setRes([]) }}>
+            <X size={12} className="text-white/25 hover:text-white/50 transition-colors" />
+          </button>
+        )}
+      </div>
+      {res.length > 0 && !valgt && (
+        <div className="absolute z-30 w-full mt-1 rounded-xl border overflow-hidden shadow-2xl"
+          style={{ background: "rgba(6,6,14,0.99)", borderColor: "rgba(255,255,255,0.07)" }}>
+          {res.map(p => {
+            const pc = POS_CFG[p.pos_group] || { color: "#94a3b8", bg: "rgba(148,163,184,0.1)", label: p.pos_group }
+            const logo = getLogo(p.team_name)
+            return (
+              <button key={p.player_name}
+                onClick={() => { onVelg(p.player_name); setQ(""); setRes([]) }}
+                className="w-full flex items-center gap-3 px-3.5 py-2.5 hover:bg-white/[0.03] transition-colors border-b border-white/[0.03] last:border-0 text-left">
+                {logo
+                  ? <div className="w-5 h-5 relative flex-shrink-0"><Image src={logo} alt="" fill className="object-contain" /></div>
+                  : <div className="w-5 h-5 rounded flex-shrink-0" style={{ background: "rgba(255,255,255,0.05)" }} />}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-white truncate">{p.player_name}</p>
+                  <p className="text-[10px] text-white/30 truncate">{p.team_name} · {p.age} år</p>
+                </div>
+                <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: pc.bg, color: pc.color }}>{pc.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
 
-      {/* ── HEADER ───────────────────────────────────── */}
-      <div
-        className="border-b border-white/5"
-        style={{ background: "radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 70%)" }}
-      >
-        <div className="max-w-7xl mx-auto px-8 py-10">
-          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-textMuted hover:text-white transition-colors mb-6">
-            <ArrowLeft size={14} /> Tilbake til dashboard
-          </Link>
-          <div className="flex items-center gap-3 mb-2">
-            <Swords className="w-5 h-5 text-brand" />
-            <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Duell</span>
-          </div>
-          <h1 className="text-4xl font-bold text-white mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
-            Sammenlign spillere
-          </h1>
-          <p className="text-textMuted">Velg to spillere og se hvem som vinner på hver metrikk</p>
+// ── Spillerkort ───────────────────────────────────────────────────
+function SpillerKort({ p, farge }: { p: Player | null; farge: typeof CA }) {
+  if (!p) return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed min-h-[160px] gap-2"
+      style={{ borderColor: `${farge.c}12` }}>
+      <Search size={14} style={{ color: `${farge.c}20` }} />
+      <p className="text-[10px]" style={{ color: `${farge.c}25` }}>Ingen spiller valgt</p>
+    </div>
+  )
+
+  const logo = getLogo(p.team_name)
+  const pc   = POS_CFG[p.pos_group] || { color: "#94a3b8", bg: "rgba(148,163,184,0.1)", label: p.pos_group }
+  const tc   = tierColor(p.value_tier ?? "")
+  const pct  = Math.round((p.percentile_pos ?? 0) * 100)
+
+  return (
+    <div className="rounded-xl border p-4 relative overflow-hidden"
+      style={{ borderColor: farge.border, background: `${farge.c}04` }}>
+      <div className="absolute inset-x-0 top-0 h-px"
+        style={{ background: `linear-gradient(90deg, transparent, ${farge.c}70, transparent)` }} />
+
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-4">
+        {logo
+          ? <div className="w-9 h-9 relative flex-shrink-0"><Image src={logo} alt="" fill className="object-contain" /></div>
+          : <div className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0"
+              style={{ background: farge.soft, color: farge.c }}>{p.player_name.charAt(0)}</div>}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-black text-white truncate" style={{ fontFamily: "'Syne',sans-serif" }}>
+            {p.player_name}
+          </p>
+          <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>
+            {p.team_name} · {p.age} år
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8 space-y-6">
+      {/* Tags */}
+      <div className="flex items-center gap-1.5 flex-wrap mb-4">
+        <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+          style={{ background: pc.bg, color: pc.color }}>{pc.label}</span>
+        {p.player_tier === "u23_prospect" && (
+          <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+            style={{ background: farge.soft, color: farge.c, border: `1px solid ${farge.border}` }}>U23</span>
+        )}
+        {p.best_role_no && (
+          <span className="text-[9px] px-2 py-0.5 rounded-full"
+            style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.35)" }}>{p.best_role_no}</span>
+        )}
+      </div>
 
-        {/* ── PLAYER PICKERS ───────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Stats-grid */}
+      <div className="grid grid-cols-2 gap-1.5">
+        {[
+          { l: "Nivå",        v: p.value_tier ?? "—",   vc: tc },
+          { l: "Pålitelighet",v: p.reliability != null ? `${(p.reliability*100).toFixed(0)}%` : "—", vc: null },
+          { l: "Mål",         v: p.goals != null ? String(p.goals) : "—",     vc: null },
+          { l: "Assist",      v: p.assists != null ? String(p.assists) : "—", vc: null },
+          { l: "Mål/90",      v: p.goals_per90 != null ? p.goals_per90.toFixed(2) : "—", vc: null },
+          { l: "Assist/90",   v: p.assists_per90 != null ? p.assists_per90.toFixed(2) : "—", vc: null },
+          { l: "Minutter",    v: p.minutes != null ? p.minutes.toLocaleString("nb") : "—", vc: null },
+          { l: "Percentil",   v: `${pct}%`, vc: tierColor(p.value_tier ?? "") },
+        ].map(({ l, v, vc }) => (
+          <div key={l} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <span className="text-[9px] uppercase tracking-wide" style={{ color: "rgba(255,255,255,0.30)" }}>{l}</span>
+            <span className="text-[10px] font-bold" style={{ color: vc ?? "rgba(255,255,255,0.70)" }}>{v}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-          {/* Spiller A */}
-          <div className="glass-panel p-5 border-t-2 border-blue-500/50">
-            <div className="text-xs uppercase tracking-widest text-blue-400 font-medium mb-3">Spiller A</div>
-            {selectedA ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>{selectedA}</div>
-                  <div className="text-xs text-textMuted mt-0.5">
-                    {allPlayers.find(p => p.player_name === selectedA)?.team_name}
-                  </div>
-                </div>
-                <button onClick={clearA} className="p-1.5 hover:bg-white/8 rounded-lg transition-colors">
-                  <X size={16} className="text-textMuted" />
-                </button>
-              </div>
-            ) : (
-              <div className="relative">
-                <div className="flex items-center gap-2 bg-bg0/60 border border-white/8 rounded-xl px-3 py-2.5">
-                  <Search size={15} className="text-textMuted" />
-                  <input
-                    type="text"
-                    placeholder="Søk etter spiller..."
-                    value={searchA}
-                    onChange={e => { setSearchA(e.target.value); setShowDropA(true) }}
-                    onFocus={() => setShowDropA(true)}
-                    className="w-full bg-transparent focus:outline-none text-sm text-white placeholder-textMuted"
-                  />
-                </div>
-                {showDropA && searchA && filtA.length > 0 && (
-                  <div className="absolute z-20 w-full mt-1 glass-panel p-1.5 max-h-52 overflow-y-auto">
-                    {filtA.map(p => (
-                      <button
-                        key={p.player_name}
-                        onClick={() => selectA(p.player_name)}
-                        className="w-full text-left px-3 py-2.5 hover:bg-white/5 rounded-lg transition-colors"
-                      >
-                        <div className="text-sm font-medium text-white">{p.player_name}</div>
-                        <div className="text-xs text-textMuted">{p.team_name}</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+// ── Statistikk-rad ────────────────────────────────────────────────
+function StatRad({ label, pctA, pctB, cA, cB, info }: {
+  label: string; pctA: number; pctB: number; cA: string; cB: string; info: string
+}) {
+  const colA   = tierCol(pctA)
+  const colB   = tierCol(pctB)
+  const winner = pctA > pctB ? "A" : pctB > pctA ? "B" : null
+
+  return (
+    <div className="grid grid-cols-[1fr_100px_1fr] items-center gap-3 py-2 border-b border-white/[0.04] last:border-0">
+      {/* A-side */}
+      <div className="flex items-center gap-2 justify-end">
+  
+        <span className="text-[12px] font-bold tabular-nums" style={{ color: colA }}>{pctA}%</span>
+        <div className="w-20 h-1 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="absolute inset-y-0 w-px" style={{ left: "50%", background: "rgba(255,255,255,0.15)" }} />
+          <div className="absolute inset-y-0 right-0 rounded-full"
+            style={{ width: `${pctA}%`, background: colA, opacity: 0.85 }} />
+        </div>
+      </div>
+
+      {/* Label */}
+      <div className="flex items-center justify-center gap-0.5">
+        <span className="text-[10px] text-center" style={{ color: "rgba(255,255,255,0.30)" }}>{label}</span>
+        <Tip text={info} />
+      </div>
+
+      {/* B-side */}
+      <div className="flex items-center gap-2">
+        <div className="w-20 h-1 rounded-full overflow-hidden relative" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="absolute inset-y-0 w-px" style={{ left: "50%", background: "rgba(255,255,255,0.15)" }} />
+          <div className="h-full rounded-full" style={{ width: `${pctB}%`, background: colB, opacity: 0.85 }} />
+        </div>
+        <span className="text-[12px] font-bold tabular-nums" style={{ color: colB }}>{pctB}%</span>
+
+      </div>
+    </div>
+  )
+}
+
+// ── Hoved ────────────────────────────────────────────────────────
+export default function DuellPage() {
+  const [spillerA, setSpillerA] = useState<Player | null>(null)
+  const [spillerB, setSpillerB] = useState<Player | null>(null)
+
+  const lastDuell = async (navnA: string, navnB: string) => {
+    try {
+      const d = await fetch(
+        `http://localhost:8000/api/duell?player_a=${encodeURIComponent(navnA)}&player_b=${encodeURIComponent(navnB)}`
+      ).then(r => r.json())
+      setSpillerA(d.player_a); setSpillerB(d.player_b)
+    } catch {}
+  }
+  const lastEnkelt = async (navn: string, setter: (p: Player | null) => void) => {
+    if (!navn) { setter(null); return }
+    try {
+      const d = await fetch(
+        `http://localhost:8000/api/duell?player_a=${encodeURIComponent(navn)}&player_b=${encodeURIComponent(navn)}`
+      ).then(r => r.json())
+      setter(d.player_a)
+    } catch {}
+  }
+  const velgA = (n: string) => {
+    if (!n) { setSpillerA(null); return }
+    spillerB ? lastDuell(n, spillerB.player_name) : lastEnkelt(n, setSpillerA)
+  }
+  const velgB = (n: string) => {
+    if (!n) { setSpillerB(null); return }
+    spillerA ? lastDuell(spillerA.player_name, n) : lastEnkelt(n, setSpillerB)
+  }
+
+  const begge = !!(spillerA && spillerB)
+  const radarData = RADAR_AKSER.map(ax => ({
+    label: ax.label,
+    A: begge ? Math.round((spillerA as any)[ax.col] ?? 50) : 0,
+    B: begge ? Math.round((spillerB as any)[ax.col] ?? 50) : 0,
+  }))
+
+  return (
+    <div className="min-h-screen" style={{ background: "#07080c" }} style={{ fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* Innhold */}
+      <div className="max-w-[1400px] mx-auto px-8 py-6">
+        <div className="grid grid-cols-12 gap-6">
+
+          {/* Venstre — søk + kort */}
+          <div className="col-span-4 space-y-3">
+            <SpillerSok farge={CA} onVelg={velgA} valgt={spillerA} nr={1} />
+            <SpillerKort p={spillerA} farge={CA} />
+            <div className="h-px" style={{ background: "rgba(255,255,255,0.04)" }} />
+            <SpillerSok farge={CB} onVelg={velgB} valgt={spillerB} nr={2} />
+            <SpillerKort p={spillerB} farge={CB} />
           </div>
 
-          {/* Spiller B */}
-          <div className="glass-panel p-5 border-t-2 border-red-500/50">
-            <div className="text-xs uppercase tracking-widest text-red-400 font-medium mb-3">Spiller B</div>
-            {selectedB ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>{selectedB}</div>
-                  <div className="text-xs text-textMuted mt-0.5">
-                    {allPlayers.find(p => p.player_name === selectedB)?.team_name}
-                  </div>
-                </div>
-                <button onClick={clearB} className="p-1.5 hover:bg-white/8 rounded-lg transition-colors">
-                  <X size={16} className="text-textMuted" />
-                </button>
+          {/* Høyre — analyse */}
+          <div className="col-span-8 space-y-5">
+            {!begge ? (
+              <div className="rounded-xl border border-dashed flex flex-col items-center justify-center min-h-[520px] gap-3"
+                style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <GitCompare size={20} style={{ color: "rgba(255,255,255,0.08)" }} />
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.20)" }}>
+                  Søk opp to spillere for å sammenligne
+                </p>
               </div>
             ) : (
-              <div className="relative">
-                <div className="flex items-center gap-2 bg-bg0/60 border border-white/8 rounded-xl px-3 py-2.5">
-                  <Search size={15} className="text-textMuted" />
-                  <input
-                    type="text"
-                    placeholder="Søk etter spiller..."
-                    value={searchB}
-                    onChange={e => { setSearchB(e.target.value); setShowDropB(true) }}
-                    onFocus={() => setShowDropB(true)}
-                    className="w-full bg-transparent focus:outline-none text-sm text-white placeholder-textMuted"
-                  />
+              <>
+                {/* Radarkart */}
+                <div className="rounded-xl border relative overflow-hidden"
+                  style={{ background: "rgba(14, 16, 24, 0.90)", borderColor: "rgba(255,255,255,0.05)" }}>
+                  <div className="absolute inset-x-0 top-0 h-px"
+                    style={{ background: `linear-gradient(90deg, transparent, ${CA.c}50, transparent, ${CB.c}50, transparent)` }} />
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-white" style={{ fontFamily: "'Syne',sans-serif" }}>
+                          Radarkart
+                        </p>
+                        <Tip text="Percentil 1–99. Offensiv (mål, assist, skudd, nøkkelpass) sammenlignes mot alle 254 spillere. Defensiv og effektivitet sammenlignes mot spillere i samme posisjon." />
+                      </div>
+                      <div className="flex items-center gap-5">
+                        {[{ p: spillerA, f: CA }, { p: spillerB, f: CB }].map(({ p, f }) => (
+                          <div key={p.player_name} className="flex items-center gap-2">
+                            <div className="h-[2px] w-4 rounded-full" style={{ background: f.c, boxShadow: `0 0 6px ${f.c}` }} />
+                            <span className="text-xs font-bold" style={{ color: f.c }}>
+                              {p.player_name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ height: 280 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={radarData} margin={{ top: 8, right: 50, bottom: 8, left: 50 }}>
+                          <PolarGrid stroke="rgba(255,255,255,0.05)" />
+                          <PolarAngleAxis dataKey="label"
+                            tick={{ fill: "rgba(255,255,255,0.28)", fontSize: 10, fontFamily: "'DM Sans',sans-serif" }} />
+                          <RechartsRadar dataKey="A" stroke={CA.c} fill={CA.c} fillOpacity={0.12} strokeWidth={2}
+                            style={{ filter: `drop-shadow(0 0 8px ${CA.c}80)` }} />
+                          <RechartsRadar dataKey="B" stroke={CB.c} fill={CB.c} fillOpacity={0.10} strokeWidth={2}
+                            style={{ filter: `drop-shadow(0 0 8px ${CB.c}80)` }} />
+                          <RechTooltip
+                            contentStyle={{ background: "rgba(4,4,10,0.98)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, fontSize: 11, padding: "8px 12px" }}
+                            labelStyle={{ color: "rgba(255,255,255,0.40)", marginBottom: 4 }}
+                            formatter={(v: number, name: string) => [
+                              `${v}%`,
+                              name === "A" ? spillerA.player_name.split(" ").pop() : spillerB.player_name.split(" ").pop()
+                            ]} />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </div>
-                {showDropB && searchB && filtB.length > 0 && (
-                  <div className="absolute z-20 w-full mt-1 glass-panel p-1.5 max-h-52 overflow-y-auto">
-                    {filtB.map(p => (
-                      <button
-                        key={p.player_name}
-                        onClick={() => selectB(p.player_name)}
-                        className="w-full text-left px-3 py-2.5 hover:bg-white/5 rounded-lg transition-colors"
-                      >
-                        <div className="text-sm font-medium text-white">{p.player_name}</div>
-                        <div className="text-xs text-textMuted">{p.team_name}</div>
-                      </button>
+
+                {/* Statistikk-sammenligning */}
+                <div className="rounded-xl border relative overflow-hidden"
+                  style={{ background: "rgba(14, 16, 24, 0.90)", borderColor: "rgba(255,255,255,0.05)" }}>
+                  <div className="absolute inset-x-0 top-0 h-px"
+                    style={{ background: `linear-gradient(90deg, transparent, ${CA.c}40, transparent, ${CB.c}40, transparent)` }} />
+                  <div className="p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-white" style={{ fontFamily: "'Syne',sans-serif" }}>
+                          Statistikk per 90 min
+                        </p>
+                        <Tip text="Percentil viser rangeringen i ligaen. Streken midt på baren er ligasnittet (50%). Prikken markerer vinneren." />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        {/* Nivå-forklaring */}
+                        {[
+                          { c: "#34d399", l: "Elite",   r: "85–99%" },
+                          { c: "#818cf8", l: "God",     r: "67–84%" },
+                          { c: "#fbbf24", l: "Middels", r: "34–66%" },
+                          { c: "#f87171", l: "Svak",    r: "1–33%"  },
+                        ].map(({ c, l, r }) => (
+                          <div key={l} className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full" style={{ background: c }} />
+                            <span className="text-[9px] font-medium" style={{ color: "rgba(255,255,255,0.35)" }}>{l}</span>
+                            <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.15)" }}>{r}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Spillernavn-header — stor og tydelig */}
+                    <div className="grid grid-cols-[1fr_100px_1fr] mb-4 pb-4 border-b border-white/[0.06]">
+                      <div className="text-right pr-3">
+                        <p className="text-base font-black text-white leading-tight"
+                          style={{ fontFamily: "'Syne',sans-serif", textShadow: `0 0 20px ${CA.c}60` }}>
+                          {spillerA.player_name}
+                        </p>
+                        <p className="text-[10px] mt-0.5 text-white/50">
+                          {spillerA.team_name} · {spillerA.age} år
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <span className="text-[10px] font-black text-white/15 tracking-widest">VS</span>
+                      </div>
+                      <div className="pl-3">
+                        <p className="text-base font-black text-white leading-tight"
+                          style={{ fontFamily: "'Syne',sans-serif", textShadow: `0 0 20px ${CB.c}60` }}>
+                          {spillerB.player_name}
+                        </p>
+                        <p className="text-[10px] mt-0.5 text-white/50">
+                          {spillerB.team_name} · {spillerB.age} år
+                        </p>
+                      </div>
+                    </div>
+
+                    {RADAR_AKSER.map(ax => (
+                      <StatRad key={ax.key}
+                        label={ax.label}
+                        info={ax.info}
+                        pctA={Math.round((spillerA as any)[ax.col] ?? 50)}
+                        pctB={Math.round((spillerB as any)[ax.col] ?? 50)}
+                        cA={CA.c} cB={CB.c}
+                      />
                     ))}
                   </div>
-                )}
-              </div>
+                </div>
+              </>
             )}
           </div>
         </div>
-
-        {/* ── EMPTY STATE ──────────────────────────────── */}
-        {!selectedA && !selectedB && (
-          <div className="glass-panel p-16 text-center">
-            <Swords className="w-12 h-12 text-textMuted/30 mx-auto mb-4" />
-            <p className="text-textMuted text-lg mb-2">Velg to spillere for å sammenligne</p>
-            <p className="text-textMuted text-sm">Søk i boksene over</p>
-          </div>
-        )}
-
-        {/* ── LOADING ──────────────────────────────────── */}
-        {loading && (
-          <div className="flex items-center justify-center py-20">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Activity className="w-5 h-5 text-brand animate-pulse" />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── ANALYSIS ─────────────────────────────────── */}
-        {!loading && duellData && (
-
-          <div className="space-y-6">
-
-            {/* Head-to-Head bar */}
-            <div className="glass-panel p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Trophy size={16} className="text-brand" />
-                <h2 className="text-base font-semibold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  Head-to-Head
-                </h2>
-              </div>
-
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="text-white font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>{duellData.player_a.name}</div>
-                  <div className="text-xs text-textMuted">{duellData.player_a.team} · {posLabel[duellData.player_a.pos_group] || duellData.player_a.pos_group}</div>
-                </div>
-                <div className="text-center px-6">
-                  <div className="text-xs text-textMuted uppercase tracking-widest">VS</div>
-                  <div className="text-xs text-brand mt-1">{aWins}–{bWins} kategorier</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-white font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>{duellData.player_b.name}</div>
-                  <div className="text-xs text-textMuted">{duellData.player_b.team} · {posLabel[duellData.player_b.pos_group] || duellData.player_b.pos_group}</div>
-                </div>
-              </div>
-
-              {h2h && (
-                <div className="flex h-10 rounded-xl overflow-hidden gap-0.5">
-                  <div
-                    className="flex items-center justify-center text-sm font-bold text-white transition-all duration-700"
-                    style={{ width: `${h2h.a}%`, background: "linear-gradient(90deg, #3b82f6, #6366f1)" }}
-                  >
-                    {h2h.a}%
-                  </div>
-                  <div
-                    className="flex items-center justify-center text-sm font-bold text-white transition-all duration-700"
-                    style={{ width: `${h2h.b}%`, background: "linear-gradient(90deg, #f43f5e, #ef4444)" }}
-                  >
-                    {h2h.b}%
-                  </div>
-                </div>
-              )}
-
-              {/* Scout conclusion */}
-              <div className="mt-4 p-3.5 rounded-xl bg-white/3 border border-white/5">
-                <div className="text-xs text-textMuted uppercase tracking-wide mb-1.5 font-medium">Scout-konklusjon</div>
-                <p className="text-sm text-white/80 leading-relaxed">{scoutConclusion}</p>
-              </div>
-            </div>
-
-            {/* Radar + Metrics grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-              {/* Radar */}
-              <div className="glass-panel p-6">
-                <h2 className="text-base font-semibold text-white mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  Rolleprofil
-                </h2>
-                <p className="text-xs text-textMuted mb-4">Percentil vs. samme posisjon</p>
-                <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={radarData}>
-                      <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                      <PolarAngleAxis dataKey="k" tick={{ fill: "#94a3b8", fontSize: 10 }} />
-                      <PolarRadiusAxis angle={90} domain={[0, 99]} tick={{ fill: "#94a3b8", fontSize: 9 }} tickCount={3} />
-                      <Radar name={duellData.player_a.name} dataKey="a" stroke="#6366f1" fill="#6366f1" fillOpacity={0.2} strokeWidth={2} />
-                      <Radar name={duellData.player_b.name} dataKey="b" stroke="#ef4444" fill="#ef4444" fillOpacity={0.2} strokeWidth={2} />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: "#0a0e17", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "11px" }}
-                        formatter={(v: any) => [`${v}. pctl`]}
-                      />
-                      <Legend
-                        wrapperStyle={{ fontSize: "12px" }}
-                        formatter={(v) => <span style={{ color: "#e2e8f0" }}>{v}</span>}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Metrics side by side */}
-              <div className="glass-panel p-6">
-                <h2 className="text-base font-semibold text-white mb-4" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  Metrikk-sammenligning
-                </h2>
-                <div className="space-y-1">
-                  {metrics.map(m => {
-                    const aVal = m.a || 0
-                    const bVal = m.b || 0
-                    const aWins = aVal > bVal
-                    const bWins = bVal > aVal
-                    const total = aVal + bVal || 1
-                    const aPct = Math.round((aVal / total) * 100)
-                    const bPct = 100 - aPct
-
-                    return (
-                      <div key={m.label} className="py-2.5 border-b border-white/5">
-                        <div className="flex justify-between items-center mb-1.5">
-                          <span className={`text-sm font-semibold ${aWins ? "text-blue-400" : "text-textMuted"}`}>
-                            {m.fmt(aVal)}
-                          </span>
-                          <span className="text-xs text-textMuted">{m.label}</span>
-                          <span className={`text-sm font-semibold ${bWins ? "text-red-400" : "text-textMuted"}`}>
-                            {m.fmt(bVal)}
-                          </span>
-                        </div>
-                        <div className="flex h-1.5 rounded-full overflow-hidden gap-0.5">
-                          <div
-                            className={`h-full rounded-full transition-all duration-700 ${aWins ? "bg-blue-500" : "bg-blue-500/30"}`}
-                            style={{ width: `${aPct}%` }}
-                          />
-                          <div
-                            className={`h-full rounded-full transition-all duration-700 ${bWins ? "bg-red-500" : "bg-red-500/30"}`}
-                            style={{ width: `${bPct}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Player cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { data: duellData.player_a, color: "border-blue-500/40", accent: "text-blue-400", label: "Spiller A" },
-                { data: duellData.player_b, color: "border-red-500/40",  accent: "text-red-400",  label: "Spiller B" },
-              ].map(({ data, color, accent, label }) => {
-                const rel = getReliability(data.minutes)
-                const initials = data.name.split(" ").map((n: string) => n[0]).slice(0, 2).join("")
-                return (
-                  <div key={label} className={`glass-panel p-6 border-t-2 ${color}`}>
-                    <div className="flex items-start gap-4 mb-5">
-                      <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold border border-white/10 flex-shrink-0"
-                        style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.1) 100%)" }}
-                      >
-                        {initials}
-                      </div>
-                      <div>
-                        <div className={`text-xs uppercase tracking-widest ${accent} font-medium mb-1`}>{label}</div>
-                        <div className="font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>{data.name}</div>
-                        <div className="text-xs text-textMuted">{data.team} · {data.age} år · {posLabel[data.pos_group] || data.pos_group}</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      {[
-                        { label: "Prestasjon", value: data.fair_score?.toFixed(2) },
-                        { label: "Minutter",   value: data.minutes >= 1000 ? `${(data.minutes/1000).toFixed(1)}k` : data.minutes },
-                        { label: "Alder",      value: `${data.age} år` },
-                      ].map(s => (
-                        <div key={s.label} className="bg-white/3 rounded-lg py-2 px-2 text-center border border-white/5">
-                          <div className="text-sm font-bold text-white">{s.value}</div>
-                          <div className="text-xs text-textMuted">{s.label}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: rel.dot, boxShadow: `0 0 5px ${rel.dot}` }} />
-                        <span className="text-xs text-textMuted">{rel.label}</span>
-                      </div>
-                      <Link
-                        href={`/player/${encodeURIComponent(data.name)}`}
-                        className={`flex items-center gap-1 text-xs ${accent} hover:underline`}
-                      >
-                        Se full profil <ChevronRight size={12} />
-                      </Link>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-          </div>
-        )}
       </div>
     </div>
   )

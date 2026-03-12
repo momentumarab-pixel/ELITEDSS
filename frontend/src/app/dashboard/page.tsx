@@ -2,527 +2,487 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
-  LayoutDashboard, TrendingUp, Users, Star, Target,
-  Zap, Shield, Activity, Radar, ArrowUpRight,
-  CheckCircle, AlertTriangle, Clock, ChevronRight,
-  BarChart3, Layers
+  LayoutDashboard, ArrowUpRight, ChevronRight,
+  BarChart3, Crosshair, Gauge, GitCompare, Users, Radar,
 } from "lucide-react"
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// ── Types ──────────────────────────────────────────────────────────
 interface Stats {
-  total_players: number
-  senior_players: number
-  u23_players: number
-  elite_count: number
-  total_goals: number
-  total_assists: number
-  avg_age: number
-  avg_fair_score: number
-  avg_reliability: number
+  total_players: number; senior_players: number; u23_players: number
+  elite_count: number; total_goals: number; total_assists: number
+  avg_age: number; avg_reliability: number
   top_scorer: { name: string; goals: number; team: string }
   top_assister: { name: string; assists: number; team: string }
   top_fair_score: { name: string; fair_score: number; team: string }
   top_scout: { name: string; scout_priority: number; tier: string }
-  positions: Record<string, number>
   risk_upside_segments: Record<string, number>
 }
-
 interface Player {
-  player_name: string
-  team_name: string
-  pos_group: string
-  age: number
-  player_tier: string
-  fair_score: number
-  forecast_score: number
-  scout_priority: number
-  roi_index: number
-  upside_gap_best: number
-  value_tier: string
-  risk_upside_segment: string
-  best_role_no: string
-  reliability: number
+  player_name: string; team_name: string; pos_group: string
+  age: number; fair_score: number; forecast_score: number
+  scout_priority: number; reliability: number
+  goals: number; assists: number; value_tier: string; best_role_no: string
+}
+interface ValueTier { tier: string; count: number; pct: number; color: string; top3: string[] }
+
+// ── Fargesystem ────────────────────────────────────────────────────
+const C = {
+  bg:      "#07080c",
+  panel:   "rgba(14, 16, 24, 0.90)",
+  border:  "rgba(255,255,255,0.05)",
+  indigo:  "#6366f1",
+  emerald: "#10b981",
+  rose:    "#f43f5e",
+  violet:  "#8b5cf6",
+  amber:   "#f59e0b",
+  blue:    "#3b82f6",
 }
 
-interface ValueTier {
-  tier: string
-  count: number
-  pct: number
-  avg_forecast: number
-  color: string
-  top3: string[]
+const POS_COLOR: Record<string, string> = {
+  GK: C.amber, DEF: C.blue, MID: C.violet, ATT: C.rose,
 }
 
-interface AgeGroup {
-  range: string
-  label: string
-  color: string
-  count: number
-  avg_fair_score: number
-  u23_count: number
+const TIER_CFG: Record<string, { color: string; label: string }> = {
+  "Elite":       { color: C.emerald, label: "Elite"      },
+  "Over snitt":  { color: C.indigo,  label: "Etablert"   },
+  "Rundt snitt": { color: C.amber,   label: "Utviklende" },
+  "Under snitt": { color: C.rose,    label: "Begrenset"  },
 }
 
-interface Team {
-  team_name: string
-  player_count: number
-  avg_age: number
-  avg_fair_score: number
-  total_goals: number
-  u23_count: number
-  top_player: string
-}
+const LOGO_MAP: [string, string][] = [
+  ["bodø","/images/Logo/bodo-glimt.png"],["glimt","/images/Logo/bodo-glimt.png"],
+  ["brann","/images/Logo/Brann.png"],["bryne","/images/Logo/Bryne.png"],
+  ["fredrikstad","/images/Logo/Fredrikstad.png"],
+  ["hamkam","/images/Logo/hamkam.png"],["ham-kam","/images/Logo/hamkam.png"],
+  ["haugesund","/images/Logo/haugesund.png"],
+  ["kfum","/images/Logo/KFUM.png"],["kristiansund","/images/Logo/Kristiansund.png"],
+  ["molde","/images/Logo/Molde.png"],["rosenborg","/images/Logo/Rosenborg.png"],
+  ["sandefjord","/images/Logo/Sandefjord.png"],["sarpsborg","/images/Logo/sarpsborg-08.png"],
+  ["strømsgodset","/images/Logo/stromsgodset.png"],["stromsgodset","/images/Logo/stromsgodset.png"],
+  ["godset","/images/Logo/stromsgodset.png"],
+  ["tromsø","/images/Logo/tromso.png"],["tromso","/images/Logo/tromso.png"],
+  ["vålerenga","/images/Logo/valerenga.png"],["valerenga","/images/Logo/valerenga.png"],
+  ["viking","/images/Logo/Viking.png"],
+]
+const getLogo = (t: string) => LOGO_MAP.find(([k]) => t?.toLowerCase().includes(k))?.[1] ?? null
 
-interface Position {
-  pos_group: string
-  count: number
-  avg_fair_score: number
-  avg_age: number
-  color: string
-  top_player: string
-}
-
-interface ClusterOverview {
-  pos_group: string
-  cluster_label: string
-  count: number
-  avg_fair_score: number
-  avg_age: number
-}
-
-// ── Design tokens — restrained premium palette ─────────────────────────────
-// Primær: indigo (#6366f1) — brukes sparsomt
-// Sekundær: hvit/grå hierarki
-// Aksent: kun én ekstra farge per seksjon maks
-
-const POS_LABEL: Record<string, string> = {
-  GK: "Keeper", DEF: "Forsvar", MID: "Midtbane", ATT: "Angrep"
-}
-
-const SEGMENT_CFG: Record<string, { label: string; icon: React.ElementType }> = {
-  Sikker_Vinner:      { label: "Sikker Vinner",  icon: CheckCircle   },
-  Risiko_Høy_Oppside: { label: "Høy Oppside",    icon: TrendingUp    },
-  Sikker_Middels:     { label: "Sikker Middels",  icon: Shield        },
-  Risiko_Lav_Oppside: { label: "Lav Oppside",     icon: AlertTriangle },
-}
-
-const MEDAL = ["🥇", "🥈", "🥉"]
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-function SectionLabel({ icon: Icon, text, action }: {
-  icon: React.ElementType; text: string; action?: { label: string; href: string }
-}) {
+// ── Panel ──────────────────────────────────────────────────────────
+function Panel({ children, className = "", glow }: { children: React.ReactNode; className?: string; glow?: string }) {
   return (
-    <div className="flex items-center justify-between mb-5">
-      <div className="flex items-center gap-2">
-        <Icon size={13} className="text-brand" />
-        <span className="text-xs uppercase tracking-widest text-textMuted font-medium">{text}</span>
-      </div>
-      {action && (
-        <Link href={action.href}
-          className="text-[11px] text-textMuted hover:text-white flex items-center gap-1 transition-colors">
-          {action.label} <ChevronRight size={10} />
-        </Link>
+    <div className={`relative overflow-hidden rounded-2xl border ${className}`}
+      style={{ background: C.panel, borderColor: C.border, boxShadow: glow ? `0 0 0 1px ${glow}22, 0 20px 40px -20px rgba(0,0,0,0.7)` : "0 20px 40px -20px rgba(0,0,0,0.7)" }}>
+      {glow && (
+        <div className="absolute inset-x-0 top-0 h-px"
+          style={{ background: `linear-gradient(90deg, transparent, ${glow}80, transparent)` }} />
       )}
+      <div className="relative z-10">{children}</div>
     </div>
   )
 }
 
-function Bar({ value, max, dim = false }: { value: number; max: number; dim?: boolean }) {
-  const pct = Math.min((value / max) * 100, 100)
+// ── Hero Metric ────────────────────────────────────────────────────
+function HeroMetric({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
-    <div className="w-full h-1 rounded-full bg-white/6 overflow-hidden">
-      <div className="h-full rounded-full"
-        style={{
-          width: `${pct}%`,
-          background: dim
-            ? "rgba(255,255,255,0.2)"
-            : "linear-gradient(90deg, #6366f1, #818cf8)",
-          boxShadow: dim ? "none" : "0 0 6px rgba(99,102,241,0.4)"
-        }} />
-    </div>
-  )
-}
-
-function PosBadge({ pos }: { pos: string }) {
-  return (
-    <span className="text-[9px] px-1.5 py-0.5 rounded font-bold text-textMuted"
-      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-      {pos}
-    </span>
-  )
-}
-
-function U23Badge() {
-  return (
-    <span className="text-[9px] px-1.5 py-0.5 rounded font-bold"
-      style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.2)" }}>
-      U23
-    </span>
-  )
-}
-
-function SkeletonBlock({ h = "h-32" }: { h?: string }) {
-  return <div className={`glass-panel rounded-2xl ${h} animate-pulse opacity-50`} />
-}
-
-function PlayerRow({ p, rank, value, sub }: {
-  p: Player; rank: number; value: string; sub: string
-}) {
-  return (
-    <Link href={`/player/${encodeURIComponent(p.player_name)}`}
-      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/4 transition-colors group">
-      <span className="w-6 text-center flex-shrink-0 text-sm">
-        {rank <= 3 ? MEDAL[rank - 1] : <span className="text-xs text-textMuted font-bold">#{rank}</span>}
-      </span>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white truncate group-hover:text-brand transition-colors">
-          {p.player_name}
+    <div className="group relative rounded-2xl border overflow-hidden transition-all duration-300"
+      style={{
+        background: `${C.panel}`,
+        borderColor: C.border,
+        boxShadow: `0 0 0 1px transparent`,
+      }}
+      onMouseEnter={e => {
+        ;(e.currentTarget as HTMLDivElement).style.borderColor = `${color}40`
+        ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 0 1px ${color}15, 0 0 30px -5px ${color}20`
+      }}
+      onMouseLeave={e => {
+        ;(e.currentTarget as HTMLDivElement).style.borderColor = C.border
+        ;(e.currentTarget as HTMLDivElement).style.boxShadow = "0 0 0 1px transparent"
+      }}>
+      {/* Top glow line */}
+      <div className="absolute inset-x-0 top-0 h-px"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}60, transparent)` }} />
+      <div className="p-5">
+        <p className="text-[42px] font-black leading-none tracking-tight text-white tabular-nums mb-2"
+          style={{ fontFamily: "'Syne', sans-serif", textShadow: `0 0 30px ${color}40` }}>
+          {value}
         </p>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <span className="text-[10px] text-textMuted truncate">{p.team_name}</span>
-          <PosBadge pos={p.pos_group} />
-          {p.player_tier === "u23_prospect" && <U23Badge />}
-        </div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: `${color}90` }}>
+          {label}
+        </p>
       </div>
-      <div className="text-right flex-shrink-0">
-        <p className="text-sm font-black text-brand">{value}</p>
-        <p className="text-[9px] text-textMuted">{sub}</p>
+    </div>
+  )
+}
+
+// ── Scout Row ──────────────────────────────────────────────────────
+function ScoutRow({ player, rank }: { player: Player; rank: number }) {
+  const logo = getLogo(player.team_name)
+  const tier = TIER_CFG[player.value_tier] ?? TIER_CFG["Rundt snitt"]
+  const score = Math.round(player.scout_priority * 100)
+  const rel = Math.round(player.reliability * 100)
+  const relColor = rel >= 75 ? C.emerald : rel >= 50 ? C.amber : "rgba(255,255,255,0.25)"
+  const posColor = POS_COLOR[player.pos_group] ?? C.indigo
+
+  return (
+    <Link href={`/player/${encodeURIComponent(player.player_name)}`}
+      className="group flex items-center gap-4 px-5 py-3.5 transition-all duration-200 hover:bg-white/[0.02]"
+      style={{ borderBottom: `1px solid rgba(255,255,255,0.025)` }}>
+      <span className="w-5 text-[10px] font-mono font-bold text-white/15 tabular-nums flex-shrink-0">{rank.toString().padStart(2,"0")}</span>
+      <div className="relative h-6 w-6 flex-shrink-0">
+        {logo
+          ? <Image src={logo} alt="" fill className="object-contain opacity-80 group-hover:opacity-100 transition-opacity" />
+          : <div className="h-full w-full rounded border border-white/5 bg-white/[0.02]" />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-semibold text-white group-hover:text-white transition-colors">
+            {player.player_name}
+          </p>
+          <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
+            style={{ background: `${posColor}12`, color: posColor, border: `1px solid ${posColor}25` }}>
+            {player.pos_group}
+          </span>
+        </div>
+        <p className="mt-0.5 text-[10px] text-white/30 truncate">
+          {player.team_name} · {player.age} år ·{" "}
+          <span style={{ color: relColor }}>Pålitelighet {rel}%</span>
+        </p>
+      </div>
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="w-14 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+          <div className="h-full rounded-full" style={{ width: `${score}%`, background: tier.color, boxShadow: `0 0 6px ${tier.color}` }} />
+        </div>
+        <span className="w-8 text-right text-sm font-black tabular-nums" style={{ color: tier.color }}>
+          {score}%
+        </span>
       </div>
     </Link>
   )
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
+// ── Top Performer ──────────────────────────────────────────────────
+function TopPerformer({ title, name, team, value, unit, logo, color }: {
+  title: string; name: string; team: string; value: number; unit: string; logo: string | null; color: string
+}) {
+  return (
+    <div className="relative rounded-2xl border overflow-hidden"
+      style={{ background: `${color}06`, borderColor: `${color}20`, boxShadow: `0 0 30px -10px ${color}20` }}>
+      <div className="absolute inset-x-0 top-0 h-px"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}70, transparent)` }} />
+      <div className="p-4">
+        <p className="text-[9px] font-semibold uppercase tracking-widest mb-3" style={{ color: `${color}80` }}>{title}</p>
+        <div className="flex items-center gap-3">
+          {logo && (
+            <div className="relative h-9 w-9 flex-shrink-0">
+              <Image src={logo} alt="" fill className="object-contain" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-white truncate">{name}</p>
+            <p className="text-[10px] text-white/35 truncate">{team}</p>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-3xl font-black tabular-nums leading-none"
+              style={{ color, fontFamily: "'Syne',sans-serif", textShadow: `0 0 20px ${color}60` }}>
+              {value}
+            </p>
+            <p className="text-[9px] uppercase tracking-wider mt-0.5" style={{ color: `${color}55` }}>{unit}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Ligakvalitet rad — enkel horisontal bar ────────────────────────
+function TierRow({ label, count, pct, color }: { label: string; count: number; pct: number; color: string }) {
+  return (
+    <div className="flex items-center gap-4 py-2.5">
+      <span className="w-24 text-[11px] font-semibold text-white flex-shrink-0">{label}</span>
+      <div className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: color, boxShadow: `0 0 8px ${color}` }} />
+      </div>
+      <span className="text-[10px] text-white/30 w-7 text-right tabular-nums flex-shrink-0">{pct}%</span>
+      <span className="text-sm font-black tabular-nums w-8 text-right flex-shrink-0"
+        style={{ color, textShadow: `0 0 10px ${color}60` }}>{count}</span>
+    </div>
+  )
+}
+
+// ── MiniRadar ──────────────────────────────────────────────────────
+function MiniRadar({ values, color }: { values: number[]; color: string }) {
+  const size = 64; const center = size / 2; const radius = size * 0.38
+  const angles = [0, 72, 144, 216, 288].map(d => d * Math.PI / 180)
+  const pts = (vals: number[], r: number) => vals.map((v, i) => {
+    const rr = r * (v / 100)
+    return `${center + rr * Math.sin(angles[i])},${center - rr * Math.cos(angles[i])}`
+  }).join(" ")
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      {[0.33, 0.66, 1].map(f => (
+        <polygon key={f} points={pts([100,100,100,100,100], radius * f)}
+          fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+      ))}
+      <polygon points={pts(values, radius)} fill={color} fillOpacity="0.12"
+        stroke={color} strokeWidth="1.5" style={{ filter: `drop-shadow(0 0 4px ${color})` }} />
+    </svg>
+  )
+}
+
+// ── Sparkline ──────────────────────────────────────────────────────
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 80; const h = 32
+  const mn = Math.min(...data); const mx = Math.max(...data); const rng = mx - mn || 1
+  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - mn) / rng) * h}`).join(" ")
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ overflow: "visible" }}>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5"
+        strokeLinecap="round" style={{ filter: `drop-shadow(0 0 3px ${color})` }} />
+    </svg>
+  )
+}
+
+// ── Analyseverktøy-kort ────────────────────────────────────────────
+function ToolCard({ title, href, desc, cta, viz, glowColor }: {
+  title: string; href: string; desc: string; cta: string; viz: React.ReactNode; glowColor: string
+}) {
+  return (
+    <Link href={href} className="group block">
+      <div className="relative rounded-2xl border overflow-hidden transition-all duration-300"
+        style={{ background: C.panel, borderColor: C.border }}
+        onMouseEnter={e => {
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = `${glowColor}35`
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 0 1px ${glowColor}10, 0 20px 40px -15px ${glowColor}20`
+        }}
+        onMouseLeave={e => {
+          ;(e.currentTarget as HTMLDivElement).style.borderColor = C.border
+          ;(e.currentTarget as HTMLDivElement).style.boxShadow = "none"
+        }}>
+        <div className="absolute inset-x-0 top-0 h-px transition-opacity opacity-0 group-hover:opacity-100"
+          style={{ background: `linear-gradient(90deg, transparent, ${glowColor}70, transparent)` }} />
+        <div className="p-5">
+          <div className="flex items-start justify-between mb-3">
+            <p className="text-sm font-black text-white" style={{ fontFamily: "'Syne',sans-serif" }}>{title}</p>
+            <ArrowUpRight size={12} className="text-white/20 group-hover:text-white/50 transition-colors mt-0.5" />
+          </div>
+          {/* Visualisering */}
+          <div className="flex items-center justify-center h-16 mb-4">
+            {viz}
+          </div>
+          <p className="text-[11px] leading-relaxed mb-3" style={{ color: "rgba(255,255,255,0.38)" }}>{desc}</p>
+          <span className="text-[10px] font-semibold" style={{ color: glowColor }}>{cta} →</span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+// ── Hoved ──────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const [stats,      setStats]      = useState<Stats | null>(null)
-  const [players,    setPlayers]    = useState<Player[]>([])
-  const [valueTiers, setValueTiers] = useState<ValueTier[]>([])
-  const [ageGroups,  setAgeGroups]  = useState<AgeGroup[]>([])
-  const [teams,      setTeams]      = useState<Team[]>([])
-  const [positions,  setPositions]  = useState<Position[]>([])
-  const [clusters,   setClusters]   = useState<ClusterOverview[]>([])
-  const [loading,    setLoading]    = useState(true)
+  const [stats,   setStats]   = useState<Stats | null>(null)
+  const [players, setPlayers] = useState<Player[]>([])
+  const [tiers,   setTiers]   = useState<ValueTier[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const base = "http://localhost:8000"
+    const B = "http://localhost:8000"
     Promise.all([
-      fetch(`${base}/api/stats`).then(r => r.json()),
-      fetch(`${base}/api/players?limit=254&sort_by=scout_priority`).then(r => r.json()),
-      fetch(`${base}/api/value-tiers`).then(r => r.json()),
-      fetch(`${base}/api/age-groups`).then(r => r.json()),
-      fetch(`${base}/api/teams`).then(r => r.json()),
-      fetch(`${base}/api/positions`).then(r => r.json()),
-      fetch(`${base}/api/clusters`).then(r => r.json()),
+      fetch(`${B}/api/stats`).then(r => r.json()),
+      fetch(`${B}/api/players?limit=254&sort_by=scout_priority`).then(r => r.json()),
+      fetch(`${B}/api/value-tiers`).then(r => r.json()),
     ])
-      .then(([s, p, vt, ag, t, pos, cl]) => {
-        setStats(s); setPlayers(p); setValueTiers(vt)
-        setAgeGroups(ag); setTeams(t); setPositions(pos)
-        setClusters(cl.overview || [])
-      })
+      .then(([s, p, vt]) => { setStats(s); setPlayers(Array.isArray(p) ? p : []); setTiers(Array.isArray(vt) ? vt : []) })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
 
-  const topScout    = [...players].sort((a, b) => b.scout_priority   - a.scout_priority).slice(0, 5)
-  const topForecast = [...players].sort((a, b) => b.forecast_score   - a.forecast_score).slice(0, 5)
-  const topRoi      = [...players].sort((a, b) => b.roi_index        - a.roi_index).slice(0, 5)
-  const topUpside   = [...players].sort((a, b) => b.upside_gap_best  - a.upside_gap_best).slice(0, 5)
-  const maxTeamScore = teams[0]?.avg_fair_score || 1
-  const maxAge       = Math.max(...ageGroups.map(g => g.count), 1)
+  if (loading) return (
+    <div className="flex min-h-screen items-center justify-center" style={{ background: C.bg }}>
+      <p className="text-sm text-white/25">Laster scouting-data…</p>
+    </div>
+  )
+
+  const topScout  = [...players].sort((a, b) => b.scout_priority - a.scout_priority).slice(0, 6)
+  const scorerLogo   = stats ? getLogo(stats.top_scorer.team) : null
+  const assisterLogo = stats ? getLogo(stats.top_assister?.team ?? "") : null
+  const elitePct  = stats ? Math.round((stats.elite_count / stats.total_players) * 100) : 0
+  const u23Pct    = stats ? Math.round((stats.u23_players / stats.total_players) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-bg0" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+    <div className="min-h-screen" style={{ background: C.bg, fontFamily: "'DM Sans', sans-serif" }}>
+      {/* Ambient */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full opacity-[0.03]"
+          style={{ background: C.indigo, filter: "blur(80px)" }} />
+      </div>
 
-      {/* ── HEADER ── */}
-      <div className="border-b border-white/5" style={{
-        background: "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(99,102,241,0.07) 0%, transparent 70%)"
-      }}>
-        <div className="max-w-7xl mx-auto px-8 py-8">
-          <div className="flex items-center gap-2 mb-3">
-            <LayoutDashboard size={14} className="text-brand" />
-            <span className="text-xs uppercase tracking-widest text-textMuted font-medium">Dashboard</span>
-          </div>
-          <div className="flex items-end justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
-                Ligaoversikt
+      {/* ── HERO ──────────────────────────────────────────────────── */}
+      <div className="relative border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+        <div className="max-w-[1400px] mx-auto px-8 py-12">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-10">
+
+            {/* CTA venstre */}
+            <div className="max-w-lg">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="h-7 w-7 rounded-xl border flex items-center justify-center"
+                  style={{ background: `${C.indigo}12`, borderColor: `${C.indigo}30` }}>
+                  <LayoutDashboard size={13} style={{ color: C.indigo }} />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
+                  Eliteserien 2025 · Sesonganalyse
+                </span>
+              </div>
+              <h1 className="text-[48px] font-black leading-none tracking-tight text-white mb-2"
+                style={{ fontFamily: "'Syne', sans-serif" }}>
+                ScoutDesk
               </h1>
-              <p className="text-textMuted text-sm">
-                Eliteserien 2025 — {stats?.total_players || 254} spillere analysert
+              <p className="text-2xl font-medium text-white/25 mb-5" style={{ fontFamily: "'Syne', sans-serif" }}>
+                Professional Scouting
               </p>
+              <p className="text-sm leading-relaxed text-white/40 max-w-sm mb-8">
+                Datadrevet rekruttering for norsk toppfotball.
+                {stats && ` ${stats.total_players} spillere analysert på tvers av nivå, rolle og potensial.`}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/scout"
+                  className="inline-flex items-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                  style={{ background: `${C.indigo}18`, border: `1px solid ${C.indigo}35` }}>
+                  Start scouting <ArrowUpRight size={13} className="text-white/40" />
+                </Link>
+                <Link href="/analyse"
+                  className="inline-flex items-center gap-2.5 rounded-xl border px-6 py-3.5 text-sm font-semibold text-white/60 transition-all hover:-translate-y-0.5 hover:text-white"
+                  style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+                  <BarChart3 size={13} className="text-white/30" /> Avansert analyse
+                </Link>
+              </div>
             </div>
-            <Link href="/scout"
-              className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 text-white"
-              style={{
-                background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(79,70,229,0.15))",
-                border: "1px solid rgba(99,102,241,0.3)",
-                boxShadow: "0 0 20px rgba(99,102,241,0.1)"
-              }}>
-              <Radar size={14} className="text-brand" />
-              <span>Scoutsenteret</span>
-              <ArrowUpRight size={13} className="text-textMuted" />
-            </Link>
+
+            {/* 4 nøkkeltall — gløende hover-border */}
+            {stats && (
+              <div className="grid grid-cols-2 gap-3 lg:min-w-[420px]">
+                <HeroMetric label="Spillere"    value={stats.total_players}  color={C.indigo}  />
+                <HeroMetric label="Mål"         value={stats.total_goals}    color={C.rose}    />
+                <HeroMetric label={`Elite · ${elitePct}%`} value={stats.elite_count} color={C.emerald} />
+                <HeroMetric label={`U23 · ${u23Pct}%`}     value={stats.u23_players} color={C.violet}  />
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
+      {/* ── MAIN ──────────────────────────────────────────────────── */}
+      <div className="max-w-[1400px] mx-auto px-8 py-10 space-y-10">
 
-        {/* ══════════════════════════════════════
-            KPI STRIP — indigo aksentlinje øverst, ellers hvit/grå
-        ══════════════════════════════════════ */}
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array(8).fill(0).map((_, i) => <SkeletonBlock key={i} h="h-24" />)}
-          </div>
-        ) : stats && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "Totalt spillere",    value: String(stats.total_players),              sub: `${stats.senior_players} senior · ${stats.u23_players} U23`,              icon: Users      },
-              { label: "Elite-spillere",     value: String(stats.elite_count),                sub: "Topp 15% i ligaen",                                                      icon: Star       },
-              { label: "Totale mål",         value: String(stats.total_goals),                sub: `${stats.total_assists} assist totalt`,                                   icon: Target     },
-              { label: "Snitt reliabilitet", value: `${(stats.avg_reliability * 100).toFixed(0)}%`, sub: "Gjennomsnittlig datagrunnlag",                                    icon: Shield     },
-              { label: "Toppscorer",         value: stats.top_scorer.name,                    sub: `${stats.top_scorer.goals} mål — ${stats.top_scorer.team}`,              icon: Zap        },
-              { label: "Beste fair score",   value: stats.top_fair_score.name,                sub: `${stats.top_fair_score.fair_score.toFixed(2)} — ${stats.top_fair_score.team}`, icon: BarChart3 },
-              { label: "Scout-prioritet #1", value: stats.top_scout.name,                     sub: `Score ${stats.top_scout.scout_priority.toFixed(2)} · ${stats.top_scout.tier}`,   icon: Radar      },
-              { label: "Snitt alder",        value: `${stats.avg_age} år`,                    sub: "Alle posisjoner",                                                        icon: Clock      },
-            ].map((kpi, i) => {
-              const Icon = kpi.icon
-              return (
-                <div key={i} className="glass-panel rounded-2xl p-5 relative overflow-hidden border border-white/5">
-                  {/* Subtil indigo-linje øverst på alle kort */}
-                  <div className="absolute inset-x-0 top-0 h-px"
-                    style={{ background: "linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)" }} />
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-4"
-                    style={{ background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.15)" }}>
-                    <Icon size={13} className="text-brand" />
-                  </div>
-                  <p className="text-lg font-black text-white truncate leading-tight mb-1">{kpi.value}</p>
-                  <p className="text-[10px] uppercase tracking-widest text-textMuted font-medium mb-1">{kpi.label}</p>
-                  <p className="text-[10px] text-textMuted/60 truncate">{kpi.sub}</p>
+        {/* Rad 1: Scout + høyre kolonne */}
+        <div className="grid grid-cols-12 gap-6">
+
+          {/* Scout-prioritet */}
+          <div className="col-span-12 lg:col-span-7">
+            <Panel glow={C.indigo}>
+              <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2">
+                  <Crosshair size={12} style={{ color: C.indigo }} />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Scout-prioritet</span>
                 </div>
-              )
-            })}
+                <Link href="/scout" className="flex items-center gap-1 text-[10px] text-white/22 hover:text-white/50 transition-colors">
+                  Se alle <ChevronRight size={10} />
+                </Link>
+              </div>
+              <div>
+                {topScout.map((p, i) => <ScoutRow key={p.player_name} player={p} rank={i + 1} />)}
+              </div>
+            </Panel>
           </div>
-        )}
 
-        {/* ══════════════════════════════════════
-            SEKSJON 1 — LIGA SNAPSHOT
-        ══════════════════════════════════════ */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Høyre: Toppscorer + Topassister + Ligakvalitet */}
+          <div className="col-span-12 lg:col-span-5 space-y-4">
+            {stats && (
+              <>
+                <TopPerformer
+                  title="Toppscorer" name={stats.top_scorer.name}
+                  team={stats.top_scorer.team} value={stats.top_scorer.goals}
+                  unit="mål" logo={scorerLogo} color={C.rose} />
+                {stats.top_assister && (
+                  <TopPerformer
+                    title="Toppassist" name={stats.top_assister.name}
+                    team={stats.top_assister.team} value={stats.top_assister.assists}
+                    unit="assist" logo={assisterLogo} color={C.emerald} />
+                )}
+              </>
+            )}
 
-          {/* Posisjonsfordeling */}
-          {loading ? <SkeletonBlock h="h-56" /> : (
-            <div className="glass-panel rounded-2xl p-6">
-              <SectionLabel icon={Activity} text="Posisjoner" />
-              <div className="space-y-4">
-                {positions.map(pos => (
-                  <div key={pos.pos_group}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-white">{POS_LABEL[pos.pos_group]}</span>
-                        <span className="text-xs text-textMuted">{pos.count}</span>
-                      </div>
-                      <span className="text-xs font-bold text-textMuted">{pos.avg_fair_score.toFixed(2)}</span>
-                    </div>
-                    <Bar value={pos.count} max={110} />
-                    <p className="text-[10px] text-textMuted/60 mt-1.5">Beste: {pos.top_player} · {pos.avg_age}år snitt</p>
-                  </div>
-                ))}
+            {/* Ligakvalitet */}
+            <Panel>
+              <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2">
+                  <Gauge size={12} className="text-white/30" />
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Ligakvalitet</span>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Value Tier fordeling */}
-          {loading ? <SkeletonBlock h="h-56" /> : (
-            <div className="glass-panel rounded-2xl p-6">
-              <SectionLabel icon={Star} text="Ligakvalitet" />
-              <div className="space-y-4">
-                {valueTiers.map((vt, i) => (
-                  <div key={vt.tier}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-white">{vt.tier}</span>
-                        <span className="text-xs text-textMuted">{vt.count}</span>
-                      </div>
-                      <span className="text-xs text-textMuted">{vt.pct}%</span>
-                    </div>
-                    {/* Første tier (Elite) får brand-farge, resten dimmere */}
-                    <Bar value={vt.pct} max={100} dim={i > 0} />
-                    <p className="text-[10px] text-textMuted/60 mt-1.5 truncate">
-                      {vt.top3.slice(0, 2).join(" · ")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Risk-Upside segmenter */}
-          {loading ? <SkeletonBlock h="h-56" /> : stats && (
-            <div className="glass-panel rounded-2xl p-6">
-              <SectionLabel icon={TrendingUp} text="Risk-Upside"
-                action={{ label: "Se frontier", href: "/scout" }} />
-              <div className="space-y-2">
-                {Object.entries(SEGMENT_CFG).map(([key, cfg]) => {
-                  const count = stats.risk_upside_segments?.[key] || 0
-                  const Icon = cfg.icon
-                  const isTop = key === "Sikker_Vinner"
-                  return (
-                    <div key={key}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/5 transition-colors hover:bg-white/3"
-                      style={{ background: isTop ? "rgba(99,102,241,0.06)" : "rgba(255,255,255,0.02)" }}>
-                      <Icon size={13} className={isTop ? "text-brand" : "text-textMuted"} />
-                      <span className="flex-1 text-sm font-medium text-white">{cfg.label}</span>
-                      <span className={`text-lg font-black ${isTop ? "text-brand" : "text-white"}`}>{count}</span>
-                    </div>
-                  )
+              <div className="px-5 py-3 space-y-0.5">
+                {tiers.map(vt => {
+                  const cfg = TIER_CFG[vt.tier] ?? { color: "#94a3b8", label: vt.tier }
+                  return <TierRow key={vt.tier} label={cfg.label} count={vt.count} pct={vt.pct} color={cfg.color} />
                 })}
               </div>
-            </div>
-          )}
+            </Panel>
+          </div>
         </div>
 
-        {/* ══════════════════════════════════════
-            SEKSJON 2 — TOPP SPILLERE
-        ══════════════════════════════════════ */}
-        {loading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-            {Array(4).fill(0).map((_, i) => <SkeletonBlock key={i} h="h-72" />)}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-            {[
-              { title: "Scout-prioritet", icon: Radar,      list: topScout,    val: (p: Player) => p.scout_priority.toFixed(2),  sub: "Prioritet"  },
-              { title: "Forecast score",  icon: TrendingUp, list: topForecast, val: (p: Player) => p.forecast_score.toFixed(2),  sub: "Forecast"   },
-              { title: "ROI-indeks",      icon: BarChart3,  list: topRoi,      val: (p: Player) => p.roi_index.toFixed(2),       sub: "ROI"        },
-              { title: "Beste oppside",   icon: Zap,        list: topUpside,   val: (p: Player) => p.upside_gap_best.toFixed(2), sub: "Oppside"    },
-            ].map(({ title, icon: Icon, list, val, sub }) => (
-              <div key={title} className="glass-panel rounded-2xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-white/5 flex items-center gap-2">
-                  <Icon size={13} className="text-brand" />
-                  <span className="text-xs uppercase tracking-widest text-textMuted font-medium">{title}</span>
-                </div>
-                <div className="py-2">
-                  {list.map((p, i) => (
-                    <PlayerRow key={p.player_name} p={p} rank={i + 1} value={val(p)} sub={sub} />
+        {/* Rad 2: Analyseverktøy */}
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/22 mb-5">Analyseverktøy</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <ToolCard
+              title="Spillerprofil"
+              href="/player"
+              glowColor={C.indigo}
+              desc="Detaljert analyse av enkeltspillere — radar, per-90 statistikker, rolleprofil og scout-vurdering."
+              cta="Utforsk spillere"
+              viz={
+                <div className="flex gap-1.5 items-end h-12">
+                  {[55,72,88,64,91,78,83,60,95,70].map((v, i) => (
+                    <div key={i} className="w-2.5 rounded-t-sm"
+                      style={{ height: `${v}%`, background: `${C.indigo}`, opacity: 0.5 + (v / 200),
+                               boxShadow: v > 80 ? `0 0 6px ${C.indigo}` : "none" }} />
                   ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              }
+            />
 
-        {/* ══════════════════════════════════════
-            SEKSJON 3 — ALDERSPROFIL
-        ══════════════════════════════════════ */}
-        {loading ? <SkeletonBlock h="h-44" /> : (
-          <div className="glass-panel rounded-2xl p-6">
-            <SectionLabel icon={Clock} text="Aldersprofil" />
-            <div className="grid grid-cols-3 lg:grid-cols-6 gap-4">
-              {ageGroups.map(g => {
-                const barH = Math.round((g.count / maxAge) * 64)
-                return (
-                  <div key={g.range} className="flex flex-col items-center gap-2">
-                    <div className="w-full flex items-end justify-center h-16">
-                      <div className="w-full rounded-t-lg"
-                        style={{
-                          height: barH,
-                          background: "linear-gradient(180deg, rgba(99,102,241,0.7), rgba(99,102,241,0.3))",
-                        }} />
-                    </div>
-                    <span className="text-xl font-black text-white">{g.count}</span>
-                    <span className="text-[10px] font-semibold text-textMuted">{g.range}</span>
-                    <span className="text-[9px] text-textMuted/60 uppercase tracking-wide">{g.label}</span>
-                    {g.u23_count > 0 && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold"
-                        style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8" }}>
-                        {g.u23_count} U23
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════
-            SEKSJON 4 — LAGRANKING
-        ══════════════════════════════════════ */}
-        {loading ? <SkeletonBlock h="h-64" /> : (
-          <div className="glass-panel rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/5">
-              <SectionLabel icon={Shield} text="Lagranking — snitt fair score"
-                action={{ label: "Team Hub", href: "/team" }} />
-            </div>
-            <div className="divide-y divide-white/4">
-              {teams.slice(0, 8).map((team, i) => (
-                <div key={team.team_name}
-                  className="flex items-center gap-4 px-6 py-3.5 hover:bg-white/2 transition-colors">
-                  <span className="w-6 text-center flex-shrink-0 text-sm">
-                    {i < 3 ? MEDAL[i] : <span className="text-xs text-textMuted font-bold">#{i + 1}</span>}
-                  </span>
-                  <div className="w-36 flex-shrink-0">
-                    <p className="text-sm font-semibold text-white truncate">{team.team_name}</p>
-                    <p className="text-[10px] text-textMuted">{team.player_count} sp · {team.u23_count} U23</p>
-                  </div>
-                  <div className="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
-                    <div className="h-full rounded-full"
-                      style={{
-                        width: `${(team.avg_fair_score / maxTeamScore) * 100}%`,
-                        background: "linear-gradient(90deg, #6366f1, #818cf8)",
-                        boxShadow: "0 0 6px rgba(99,102,241,0.4)"
-                      }} />
-                  </div>
-                  <div className="flex items-center gap-5 flex-shrink-0 text-xs">
-                    <div className="text-right">
-                      <p className="font-black text-brand">{team.avg_fair_score.toFixed(2)}</p>
-                      <p className="text-[9px] text-textMuted">Snitt</p>
-                    </div>
-                    <div className="text-right hidden md:block">
-                      <p className="font-bold text-white">{team.total_goals}</p>
-                      <p className="text-[9px] text-textMuted">Mål</p>
-                    </div>
-                    <div className="hidden lg:block text-right">
-                      <p className="font-medium text-textMuted truncate max-w-[100px]">{team.top_player}</p>
-                      <p className="text-[9px] text-textMuted">Toppspiller</p>
-                    </div>
-                  </div>
+            <ToolCard
+              title="Sammenligning"
+              href="/duell"
+              glowColor={C.emerald}
+              desc="Sammenlign to spillere direkte på 10 statistikker — radar, nøkkelpass, dueller og mye mer."
+              cta="Start duell"
+              viz={
+                <div className="flex items-center gap-3">
+                  <MiniRadar values={[85, 70, 92, 60, 78]} color={C.emerald} />
+                  <span className="text-[10px] font-bold text-white/20">VS</span>
+                  <MiniRadar values={[72, 88, 58, 91, 65]} color={C.indigo} />
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              }
+            />
 
-        {/* ══════════════════════════════════════
-            SEKSJON 5 — CLUSTER-OVERSIKT
-        ══════════════════════════════════════ */}
-        {loading ? <SkeletonBlock h="h-44" /> : (
-          <div className="glass-panel rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/5">
-              <SectionLabel icon={Layers} text="Spillerprofiler — K-means klynger" />
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-5 divide-x divide-y divide-white/5">
-              {clusters.sort((a, b) => b.count - a.count).map(cl => (
-                <div key={cl.cluster_label} className="p-5 hover:bg-white/2 transition-colors">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[9px] font-bold px-2 py-0.5 rounded text-textMuted"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                      {cl.pos_group}
-                    </span>
-                    <span className="text-[9px] text-textMuted/50">sil {cl.silhouette?.toFixed(2)}</span>
-                  </div>
-                  <p className="text-sm font-bold text-white leading-tight mb-2">{cl.cluster_label}</p>
-                  <p className="text-2xl font-black text-brand mb-1">{cl.count}</p>
-                  <p className="text-[10px] text-textMuted">⌀ {cl.avg_fair_score?.toFixed(2)} · {cl.avg_age?.toFixed(1)}år</p>
+            <ToolCard
+              title="Scout-senteret"
+              href="/scout"
+              glowColor={C.violet}
+              desc="Filtrer på posisjon, alder og nivå. Rangert etter scout-prioritet, ROI og forecast score."
+              cta="Åpne scout-filter"
+              viz={
+                <div className="text-center">
+                  <Sparkline data={[40,48,61,70,65,79,74,88,85,94]} color={C.violet} />
+                  <p className="text-[9px] text-white/25 mt-1.5" style={{ color: C.violet }}>Scout-prioritet ↑ sesong 2025</p>
                 </div>
-              ))}
-            </div>
+              }
+            />
           </div>
-        )}
-
+        </div>
       </div>
     </div>
   )
